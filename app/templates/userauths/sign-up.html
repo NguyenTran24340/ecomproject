@@ -1,0 +1,39 @@
+{% extends "app/base.html" %} {% load static %} {% block content %}
+<div class="login-register-area pt-100px pb-100px">
+  <div class="container">
+    <div class="row">
+      <div class="col-lg-7 col-md-12 ml-auto mr-auto">
+        <div class="login-register-wrapper">
+          <div class="login-register-tab-list nav">
+            <a class="active" data-bs-toggle="tab" href="#lg2">
+              <h4>register</h4>
+            </a>
+          </div>
+          {% if form.errors %}
+          <div class="alert alert-danger">
+            <strong>{{ form.errors }}</strong>
+          </div>
+          {% endif %}
+          <div class="tab-content">
+            <div id="lg2" class="tab-pane active">
+              <div class="login-form-container">
+                <div class="login-register-form">
+                  <form action="#" method="POST">
+                    {% csrf_token %} {{form.username}} {{form.email}}
+                    {{form.password1}} {{form.password2}}
+                    <div class="button-box">
+                      <button type="submit"><span>Register</span></button>
+                    </div>
+                  </form>
+                  <br />
+                  <p>Already have an account? <a href="#">Login</a></p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock content %}
