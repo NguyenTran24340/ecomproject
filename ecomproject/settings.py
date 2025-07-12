@@ -43,6 +43,11 @@ INSTALLED_APPS = [
     #Custom Apps
     'app',
     'userauths',
+
+    # Api 
+    'rest_framework',
+    'drf_yasg',
+    'rest_framework_simplejwt.token_blacklist',
     
 ]
 
@@ -121,7 +126,7 @@ USE_TZ = True
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/5.2/howto/static-files/
 
-STATIC_URL = 'static/'
+STATIC_URL = '/static/'
 
 STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
 
@@ -140,6 +145,33 @@ JAZZMIN_SETTINGS = {
     'site_brand': "Mioca Shop",
     'site_logo': "assets/images/favicon/favicon.ico",
     'copyright': "mioca-shop.com",
+}
+
+#API
+REST_FRAMEWORK = {
+    'DEFAULT_AUTHENTICATION_CLASSES': (
+        'rest_framework_simplejwt.authentication.JWTAuthentication',
+    ),
+}
+
+from datetime import timedelta
+
+SIMPLE_JWT = {
+    'ACCESS_TOKEN_LIFETIME': timedelta(days=1),
+    'AUTH_HEADER_TYPES': ('Bearer',),
+    'BLACKLIST_AFTER_ROTATION': True,
+    'ROTATE_REFRESH_TOKENS': True,
+}
+
+SWAGGER_SETTINGS = {
+    'SECURITY_DEFINITIONS': {
+        'Bearer': {
+            'type': 'apiKey',
+            'name': 'Authorization',
+            'in': 'header',
+            'description': 'JWT Authorization header. Example: Bearer <your JWT token>'
+        }
+    }
 }
 
 AUTH_USER_MODEL = 'userauths.User'

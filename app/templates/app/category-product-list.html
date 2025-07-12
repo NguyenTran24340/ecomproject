@@ -1,0 +1,177 @@
+{% extends "app/base.html" %} {% load static %} {% block content %}
+
+<!-- Shop Page Start  -->
+
+<div class="shop-category-area pt-100px pb-100px">
+  <div class="container">
+    <div class="row">
+      <div class="col-lg-9 order-lg-last col-md-12 order-md-first">
+        <div class="sidebar-widget-image">
+          <a href="#" class="single-banner">
+            <h4>{{category.title}} Categories</h4>
+            <h6 style="color: Gray">
+              We found
+              <strong class="text-brand">{{ products.count }}</strong> items for
+              you!
+            </h6>
+          </a>
+        </div>
+
+        <!-- Shop Bottom Area Start -->
+        <div class="shop-bottom-area">
+          <!-- Tab Content Area Start -->
+          <div class="row">
+            <div class="col">
+              <div class="tab-content">
+                <div class="tab-pane fade show active" id="shop-grid">
+                  <div class="row mb-n-30px">
+                    {% for product in products %}
+                    <div
+                      class="col-lg-4 col-md-6 col-sm-6 col-xs-6 mb-30px"
+                      data-aos="fade-up"
+                      data-aos-delay="{{ forloop.counter0|add:1 }}00"
+                    >
+                      <!-- Single Product -->
+                      <div class="product">
+                        <div class="thumb">
+                          <a href="single-product.html" class="image">
+                            <img
+                              src="{{ product.image.url }}"
+                              alt="{{ product.title }}"
+                            />
+                            <img
+                              class="hover-image"
+                              src="{{ product.image.url }}"
+                              alt="{{ product.title }} Hover"
+                            />
+                          </a>
+                          <span class="badges">
+                            <span class="sale"
+                              >-{{product.get_precentage|floatformat:0}}%</span
+                            >
+                            <span class="new">New</span>
+                          </span>
+                          <div class="actions">
+                            <a
+                              href="wishlist.html"
+                              class="action wishlist"
+                              title="Wishlist"
+                            >
+                              <i class="pe-7s-like"></i>
+                            </a>
+                            <a
+                              href="#"
+                              class="action quickview"
+                              data-link-action="quickview"
+                              title="Quick view"
+                              data-bs-toggle="modal"
+                              data-bs-target="#exampleModal"
+                            >
+                              <i class="pe-7s-look"></i>
+                            </a>
+                            <a
+                              href="compare.html"
+                              class="action compare"
+                              title="Compare"
+                            >
+                              <i class="pe-7s-refresh-2"></i>
+                            </a>
+                          </div>
+                        </div>
+                        <div class="content">
+                          <br />
+                          <span class="ratings">
+                            <span class="rating-wrap">
+                              <span class="star" style="width: 100%"></span>
+                            </span>
+                            <span class="rating-num d-none">(5 Review)</span>
+                          </span>
+                          <h5 class="title">
+                            <a href="single-product.html"
+                              >{{ product.title }}</a
+                            >
+                          </h5>
+                          <span class="price">
+                            <span class="new">${{ product.price }}</span>
+                            <br />
+                            <br />
+                            <span
+                              class="old-price"
+                              style="
+                                text-decoration: line-through;
+                                color: #999;
+                                margin-right: 10px;
+                                font-size: 0.9em;
+                              "
+                              >${{ product.old_price }}</span
+                            >
+                          </span>
+                        </div>
+                        <button title="Add To Cart" class="add-to-cart">
+                          Add To Cart
+                        </button>
+                      </div>
+                    </div>
+                    {% endfor %}
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <!-- Tab Content Area End -->
+
+          <!--  Pagination Area Start -->
+          <div
+            class="pro-pagination-style text-center text-lg-end"
+            data-aos="fade-up"
+            data-aos-delay="200"
+          >
+            <div class="pages">
+              <ul>
+                <li class="li">
+                  <a class="page-link" href="#"
+                    ><i class="fa fa-angle-left"></i
+                  ></a>
+                </li>
+                <li class="li"><a class="page-link" href="#">1</a></li>
+                <li class="li"><a class="page-link active" href="#">2</a></li>
+                <li class="li"><a class="page-link" href="#">3</a></li>
+                <li class="li">
+                  <a class="page-link" href="#"
+                    ><i class="fa fa-angle-right"></i
+                  ></a>
+                </li>
+              </ul>
+            </div>
+          </div>
+          <!--  Pagination Area End -->
+        </div>
+        <!-- Shop Bottom Area End -->
+      </div>
+      <!-- Sidebar Area Start -->
+      <div class="col-lg-3 order-lg-first col-md-12 order-md-last">
+        <div class="shop-sidebar-wrap">
+          <!-- Sidebar single item -->
+          <div class="sidebar-widget">
+            <h4 class="sidebar-title">Categories</h4>
+            <div class="sidebar-widget-category">
+              <ul>
+                {% for c in categories %}
+                <li>
+                  <a href="{% url 'app:category-product-list' c.cid %}">
+                    <i class="fa fa-angle-right"></i> {{ c.title }}
+                    <span>( {{ c.category.count }} )</span>
+                  </a>
+                </li>
+                {% endfor %}
+              </ul>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+<!-- Shop Page End  -->
+
+{% endblock content %}
