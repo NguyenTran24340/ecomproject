@@ -1,0 +1,131 @@
+{% extends "app/base.html" %} {% load static %} {% block content %}
+<!-- Product Details Area Start -->
+    <div class="product-details-area pt-100px pb-100px">
+        <div class="container">
+            <div class="row">
+                <div class="col-lg-6 col-sm-12 col-xs-12 mb-lm-30px mb-md-30px mb-sm-30px">
+                    <!-- Swiper -->
+                    <div class="swiper-container zoom-top">
+                        <div class="swiper-wrapper">
+                            <div class="swiper-slide zoom-image-hover">
+                                <img class="img-responsive m-auto" src="{{p.image.url}}"
+                                    alt="">
+                            </div>
+                            <div class="swiper-slide zoom-image-hover">
+                                <img class="img-responsive m-auto" src="{{p.image.url}}"
+                                    alt="">
+                            </div>
+                            
+                        </div>
+                    </div>
+                    <div class="swiper-container zoom-thumbs mt-20px">
+                        <div class="swiper-wrapper">
+                            {% if p_image %}
+                            <div class="swiper-slide"> <img class="img-responsive m-auto" src="{{ p.image.url }}" alt="{{ p.title }}"> </div>
+                            {% endif %}
+
+                            {% for p in p_image %}
+                            <div class="swiper-slide"><img class="img-responsive m-auto" src="{{ p.images.url }}" alt="{{ p.title }}"></div>
+                           {% endfor %}
+                        </div>
+                    </div>
+                </div>
+                <div class="col-lg-6 col-sm-12 col-xs-12" data-aos="fade-up" data-aos-delay="200">
+                    <div class="product-details-content quickview-content ml-25px">
+                      <span class="" style=" 
+                        background-color: #fce4ec; 
+                        color: #e91e63; 
+                        padding: 5px 10px; 
+                        border-radius: 5px; 
+                        font-size: 0.9em; 
+                        font-weight: bold;
+                        display: inline-block;">
+                        -{{ p.get_precentage|floatformat:0 }}%
+                      </span>
+                      <br/>
+                      <br/>
+                        <h2>{{p.title}}</h2>
+                        <div class="pricing-meta">
+                            <ul class="d-flex">
+                                <li class="new-price">${{p.price}}</li>
+                                <li class="old-price"><del>${{p.old_price}}</del></li>
+                            </ul>
+                        </div>
+                        <div class="pro-details-rating-wrap">
+                            <div class="rating-product">
+                                <i class="fa fa-star"></i>
+                                <i class="fa fa-star"></i>
+                                <i class="fa fa-star"></i>
+                                <i class="fa fa-star"></i>
+                                <i class="fa fa-star"></i>
+                            </div>
+                            <span class="read-review"><a class="reviews" href="#">( 2 Review )</a></span>
+                        </div>
+                        <div class="stock mt-30px">
+                            <span class="avallabillty">Availability: <span class="in-stock"><i class="fa fa-check"></i>In Stock</span></span>
+                        </div>
+                        <p class="mt-30px mb-0">{{p.description}} </p>
+                        <div class="pro-details-color-size d-flex">
+                        </div>
+                        <div class="pro-details-quality">
+                            <div class="cart-plus-minus">
+                                <input class="cart-plus-minus-box" type="text" name="qtybutton" value="1" />
+                            </div>
+                            <div class="pro-details-cart">
+                                <button class="add-cart"> Add To
+                                    Cart</button>
+                            </div>
+                            <div class="pro-details-cart">
+                                <button class="add-cart buy-button"> Buy It Now</button>
+                            </div>
+                            <div class="pro-details-compare-wishlist pro-details-wishlist ">
+                                <a href="wishlist.html"><i class="pe-7s-like"></i></a>
+                            </div>
+                        </div>
+                        <div class="pro-details-categories-info pro-details-same-style d-flex">
+                            <span>Categories: </span>
+                            <ul class="d-flex">
+                                <li>
+                                    <a href="#">Handmade, </a>
+                                </li>
+                                <li>
+                                    <a href="#">Furniture, </a>
+                                </li>
+                                <li>
+                                    <a href="#">Decore</a>
+                                </li>
+                            </ul>
+                        </div>
+                        <div class="pro-details-social-info pro-details-same-style d-flex">
+                            <span>Share: </span>
+                            <ul class="d-flex">
+                                <li>
+                                    <a href="#"><i class="fa fa-facebook"></i></a>
+                                </li>
+                                <li>
+                                    <a href="#"><i class="fa fa-twitter"></i></a>
+                                </li>
+                                <li>
+                                    <a href="#"><i class="fa fa-google"></i></a>
+                                </li>
+                                <li>
+                                    <a href="#"><i class="fa fa-youtube"></i></a>
+                                </li>
+                                <li>
+                                    <a href="#"><i class="fa fa-instagram"></i></a>
+                                </li>
+                            </ul>
+                        </div>
+                        <div class="payment-img">
+                            <a href="#"><img src="{% static 'assets/images//icons/payment.png' %}" alt=""></a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+
+{% endblock content %}

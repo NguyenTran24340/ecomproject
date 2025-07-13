@@ -1,4 +1,4 @@
-from django.shortcuts import render
+from django.shortcuts import render, get_object_or_404
 from django.http import HttpResponse
 from app.models import Product, Category, CartOrder, CartOrderItems, ProductImages, ProductReview, Wishlist, Address
 from django.db.models import Count
@@ -10,9 +10,13 @@ def index(request):
     fabric_products = Product.objects.filter(product_status="public", featured=True, category=fabric_category) if fabric_category else []
     wooden_products = Product.objects.filter(product_status="public", featured=True, category=wooden_category) if wooden_category else []
 
+    categories = Category.objects.all().annotate(product_count=Count("category"))
+
+
     context = {
         "fabric_products": fabric_products,
         "wooden_products": wooden_products,
+        "categories": categories
     }
 
     return render(request, 'app/index.html', context)
@@ -53,3 +57,21 @@ def category_product_list_view(request, cid):
     }
 
     return render(request, "app/category-product-list.html", context)
+
+def product_detail_view(request, pid):
+    product = Product.objects.get(pid=pid)
+    # product = get_object_or_404(Product, pid=pid)
+    products = Product.objects.filter(category=product.category).exclude(pid=product.pid)
+    categories = Category.objects.all().annotate(product_count=Count("category"))
+
+
+    p_image = product.p_images.all()
+
+    context = {
+        "p": product,
+        "p_image": p_image,
+        "products": products,
+        "categories": categories
+    }
+
+    return render(request, "app/product-detail.html", context)

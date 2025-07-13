@@ -164,7 +164,7 @@
                 <!-- Single Prodect -->
                 <div class="product">
                   <div class="thumb">
-                    <a href="single-product.html" class="image">
+                    <a href="{% url "app:product-detail" product.pid %}" class="image">
                       <img src="{{ product.image.url }}" alt="Product" />
                       <img
                         class="hover-image"
@@ -248,7 +248,7 @@
                 <!-- Single Prodect -->
                 <div class="product">
                   <div class="thumb">
-                    <a href="single-product.html" class="image">
+                    <a href="{% url "app:product-detail" product.pid %}" class="image">
                       <img src="{{ product.image.url }}" alt="Product" />
                       <img
                         class="hover-image"

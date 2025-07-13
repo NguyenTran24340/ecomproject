@@ -143,6 +143,19 @@
                       </li>
                     </ul>
                   </li>
+
+                  <li class="dropdown">
+                    <a href="#">Category <i class="fa fa-angle-down"></i></a>
+                    <ul class="sub-menu">
+                      <li><a href="{% url "app:category-list" %}">All Category</a></li>
+                      {% for c in categories %}
+                      <li><a href="{% url "app:category-product-list" c.cid %}">{{c.title}}</a></li>
+                      {% endfor %}
+                      
+
+                    </ul>
+                  </li>
+
                   <li class="dropdown position-static">
                     <a href="{% url "app:product-list" %}">Shop <i class=""></i></a>
                     
