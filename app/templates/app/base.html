@@ -677,12 +677,13 @@
           <div class="modal-content">
             <div class="modal-body">
               <h2>Search Your Product</h2>
-              <form class="navbar-form position-relative" role="search">
+              <form class="navbar-form position-relative" action="{% url "app:search" %}" method="GET" role="search">
                 <div class="form-group">
                   <input
                     type="text"
                     class="form-control"
                     placeholder="Search here..."
+                    name="q"
                   />
                 </div>
                 <button type="submit" class="submit-btn">
@@ -926,5 +927,6 @@
 
     <!-- Main Js -->
     <script src="{% static 'assets/js/main.js' %}"></script>
+    <script src="{% static 'assets/js/price.js' %}"></script>
   </body>
 </html>
