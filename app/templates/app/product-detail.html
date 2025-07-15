@@ -47,7 +47,7 @@
                         <h2>{{p.title}}</h2>
                         <div class="pricing-meta">
                             <ul class="d-flex">
-                                <li class="new-price">${{p.price}}</li>
+                                <li class="new-price" id="current-product-price">${{p.price}}</li>
                                 <li class="old-price"><del>${{p.old_price}}</del></li>
                             </ul>
                         </div>
@@ -69,11 +69,16 @@
                         </div>
                         <div class="pro-details-quality">
                             <div class="cart-plus-minus">
-                                <input class="cart-plus-minus-box" type="text" name="qtybutton" value="1" />
+                              <input class="cart-plus-minus-box product-quantity-{{ p.id }}" type="number" name="qtybutton" value="1" id="product-quantity"/>
                             </div>
+                                <input type="hidden" class="product-id-{{ p.id }}" value="{{ p.id }}" />
+                                <input type="hidden" class="product-pid-{{ p.id }}" value="{{ p.pid }}" />
+                                <input type="hidden" class="product-title-{{ p.id }}" value="{{ p.title }}" />
+                                <input type="hidden" class="product-image-{{ p.id }}" value="{{ p.image.url }}" />
+                                <input type="hidden" class="current-product-price-{{ p.id }}" value="{{ p.price }}" />
+                           
                             <div class="pro-details-cart">
-                                <button class="add-cart"> Add To
-                                    Cart</button>
+                                <button class="add-cart add-to-cart-btn" data-index="{{ p.id }}" id="add-to-cart-btn">  Add To Cart</button>
                             </div>
                             <div class="pro-details-cart">
                                 <button class="add-cart buy-button"> Buy It Now</button>

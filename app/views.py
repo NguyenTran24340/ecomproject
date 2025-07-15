@@ -1,8 +1,9 @@
 from django.shortcuts import render, get_object_or_404
-from django.http import HttpResponse
+from django.http import HttpResponse, JsonResponse
 from app.models import Product, Category, CartOrder, CartOrderItems, ProductImages, ProductReview, Wishlist, Address
 from django.db.models import Count
 from django.db.models import Q
+import json
 # Create your views here.
 def index(request):
     fabric_category = Category.objects.filter(title__iexact="Fabric").first()
@@ -86,8 +87,6 @@ def product_detail_view(request, pid):
     return render(request, "app/product-detail.html", context)
 
 
-
-
 def search_view(request):
     query = request.GET.get("q") # Get the query string
 
@@ -110,3 +109,35 @@ def search_view(request):
     }
 
     return render(request, "app/search.html", context)
+
+
+def add_to_cart(request):
+    cart_product = {}
+
+    cart_product[str(request.GET['id'])] = {
+        'title': request.GET['title'],
+        'qty': request.GET['qty'],
+        'price': request.GET['price'],
+        'image': request.GET['image'],
+        'pid': request.GET['pid'],
+
+    }
+
+    if 'cart_data_obj' in request.session:
+        if str(request.GET['id']) in request.session['cart_data_obj']:
+            cart_data = request.session['cart_data_obj']
+            cart_data[str(request.GET['id'])]['qty'] = int(cart_product[str(request.GET['id'])]['qty'])
+            request.session['cart_data_obj'] = cart_data
+        else:
+            cart_data = request.session['cart_data_obj']
+            cart_data.update(cart_product)
+            request.session['cart_data_obj'] = cart_data
+    else:
+        request.session['cart_data_obj'] = cart_product
+    return JsonResponse({"data":request.session['cart_data_obj'], 'totalcartitems': len(request.session['cart_data_obj'])})
+
+def cart_counter(request):
+    total_items = len(request.session.get('cart_data_obj', {}))
+    return JsonResponse({'totalcartitems': total_items})
+
+            
