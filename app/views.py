@@ -1,8 +1,9 @@
-from django.shortcuts import render, get_object_or_404
+from django.shortcuts import render, get_object_or_404, redirect
 from django.http import HttpResponse, JsonResponse
 from app.models import Product, Category, CartOrder, CartOrderItems, ProductImages, ProductReview, Wishlist, Address
 from django.db.models import Count
 from django.db.models import Q
+from django.contrib import messages
 import json
 # Create your views here.
 def index(request):
@@ -140,4 +141,19 @@ def cart_counter(request):
     total_items = len(request.session.get('cart_data_obj', {}))
     return JsonResponse({'totalcartitems': total_items})
 
-            
+def cart_view(request):
+    cart_total_amount = 0
+    if 'cart_data_obj' in request.session:
+        for p_id, item in request.session['cart_data_obj'].items():
+            price = float(item['price'].replace('$', ''))
+            cart_total_amount += int(item['qty']) * price
+        return render(request, "app/cart.html", {"cart_data":request.session['cart_data_obj'], 'totalcartitems': len(request.session['cart_data_obj']),'cart_total_amount':cart_total_amount} )
+    else:
+        messages.warning(request, "Your cart is empty")            
+        return redirect("app:index")
+
+
+
+
+
+
