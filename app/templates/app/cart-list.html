@@ -1,7 +1,6 @@
-{% extends "app/base.html" %} {% load static %} {% block content %} {% load cart_tags %}
-
+{% load cart_tags %}
 <!-- Cart Area Start -->
-<div class="cart-main-area pt-100px pb-100px" id="cart-list">
+<div class="cart-main-area pt-100px pb-100px"  id="cart-list">
   <div class="container">
     <h3 class="cart-page-title">Your cart items</h3>
     <h6 class="text-body">There are <span class="text-brand">{{ totalcartitems }}</span> products in your</h6>
@@ -77,7 +76,6 @@
           </div>
         </form>
         <div class="row">
-          
           <div class="col-lg-4 col-md-6 mb-lm-30px">
             <div class="discount-code-wrapper">
               <div class="title-wrap">
@@ -119,6 +117,4 @@
   </div>
 </div>
 <!-- Cart Area End -->
-<script src="{% static 'assets/js/function.js' %}"></script>
 
-{% endblock content %}

@@ -1,7 +1,7 @@
 from django.contrib import admin
 from django.urls import path
 from.import views
-from app.views import index, product_list_view, category_list_view, category_product_list_view, product_detail_view, search_view, add_to_cart, cart_view
+from app.views import index, product_list_view, category_list_view, category_product_list_view, product_detail_view, search_view, add_to_cart, cart_view, delete_item_from_cart
 
 app_name = "app"
 urlpatterns = [
@@ -24,5 +24,8 @@ urlpatterns = [
 
     # cart url
     path("cart/", cart_view, name="cart"),
+
+    # Delete item form cart
+    path("delete-from-cart/", delete_item_from_cart, name="delete-from-cart"),
 
 ]

@@ -5,6 +5,8 @@ from django.db.models import Count
 from django.db.models import Q
 from django.contrib import messages
 import json
+from django.template.loader import render_to_string
+
 # Create your views here.
 def index(request):
     fabric_category = Category.objects.filter(title__iexact="Fabric").first()
@@ -152,6 +154,24 @@ def cart_view(request):
         messages.warning(request, "Your cart is empty")            
         return redirect("app:index")
 
+
+def delete_item_from_cart(request):
+    product_id = str(request.GET['id'])
+
+    if 'cart_data_obj' in request.session:
+        if product_id in request.session['cart_data_obj']:
+            cart_data = request.session['cart_data_obj']
+            del request.session['cart_data_obj'][product_id]
+            request.session['cart_data_obj'] = cart_data
+
+    cart_total_amount = 0
+    if 'cart_data_obj' in request.session:
+        for p_id, item in request.session['cart_data_obj'].items():
+            price_str = item['price'].replace('$', '').strip()
+            cart_total_amount += int(item['qty']) * float(price_str)
+
+    context = render_to_string( "app/cart-list.html", {"cart_data":request.session['cart_data_obj'], 'totalcartitems': len(request.session['cart_data_obj']),'cart_total_amount':cart_total_amount},request=request )
+    return JsonResponse({"data": context, 'totalcartitems': len(request.session['cart_data_obj'])})
 
 
 
