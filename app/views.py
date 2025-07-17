@@ -174,6 +174,29 @@ def delete_item_from_cart(request):
     return JsonResponse({"data": context, 'totalcartitems': len(request.session['cart_data_obj'])})
 
 
+def update_cart(request):
+    product_id = str(request.GET['id'])
+    product_qty = request.GET['qty']
+
+    if 'cart_data_obj' in request.session:
+        if product_id in request.session['cart_data_obj']:
+            cart_data = request.session['cart_data_obj']
+            cart_data[str(request.GET['id'])]['qty'] = product_qty
+            request.session['cart_data_obj'] = cart_data
+
+    cart_total_amount = 0
+    if 'cart_data_obj' in request.session:
+        for p_id, item in request.session['cart_data_obj'].items():
+            price_str = item['price'].replace('$', '').strip()
+            cart_total_amount += int(item['qty']) * float(price_str)
+
+    context = render_to_string( "app/cart-list.html", {"cart_data":request.session['cart_data_obj'], 'totalcartitems': len(request.session['cart_data_obj']),'cart_total_amount':cart_total_amount},request=request )
+    return JsonResponse({"data": context, 'totalcartitems': len(request.session['cart_data_obj'])})
+
+
+
+
+
 
 
 

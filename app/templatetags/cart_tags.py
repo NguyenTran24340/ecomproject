@@ -1,7 +1,7 @@
 from django import template
 
 register = template.Library()
-
+#subtotal
 @register.filter
 def mul(value, arg):
     try:

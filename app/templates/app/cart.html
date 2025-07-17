@@ -43,7 +43,7 @@
                   <td class="product-quantity">
                     <div class="cart-plus-minus">
                       <input
-                        class="cart-plus-minus-box"
+                        class="cart-plus-minus-box product-qty-{{product_id}}"
                         type="text"
                         name="qtybutton"
                         value="{{item.qty}}"
@@ -54,7 +54,7 @@
                     {% with item.price|cut:"$" as clean_price %}${{ clean_price|mul:item.qty|floatformat:2 }}{% endwith %}
                   </td>
                   <td class="product-remove">
-                    <a href="#"><i class="fa fa-refresh"></i></a>
+                    <button type="button" class="update-product" data-product="{{product_id}}"><i class="fa fa-refresh"></i></button>
                     <button type="button" class="delete-product" data-product="{{product_id}}"><i class="fa fa-times"></i></button>
                   </td>
                 </tr>

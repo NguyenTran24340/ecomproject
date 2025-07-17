@@ -68,6 +68,32 @@ $(document).ready(function () {
     });
   });
 
+  // Update product
+  $(document).on("click", ".update-product", function () {
+    let this_val = $(this);
+    let product_id = this_val.data("product");
+    let product_quantity = $(".product-qty-" + product_id).val();
+
+    console.log("Product ID:", product_id);
+    console.log("Product QTY:", product_quantity);
+
+    $.ajax({
+      url: "/update-cart",
+      data: {
+        id: product_id,
+        qty: product_quantity,
+      },
+      dataType: "json",
+      beforeSend: function () {
+        this_val.hide();
+      },
+      success: function (response) {
+        $(".cart-items-count").text(response.totalcartitems);
+        $("#cart-list").html(response.data);
+      },
+    });
+  });
+
   // Load cart item count on page load
   $.ajax({
     url: "/cart-counter/",
