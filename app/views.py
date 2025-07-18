@@ -26,7 +26,7 @@ def index(request):
 
     return render(request, 'app/index.html', context)
 
-
+# function product
 def product_list_view(request):
     products = Product.objects.filter(product_status="public")
     categories = Category.objects.all().annotate(product_count=Count("category"))
@@ -47,7 +47,7 @@ def product_list_view(request):
 
     return render(request, 'app/product-list.html', context)
 
-
+# Function Category
 def category_list_view(request):
    # categories = Category.objects.all()
     categories = Category.objects.all().annotate(product_count=Count("category"))
@@ -72,6 +72,7 @@ def category_product_list_view(request, cid):
 
     return render(request, "app/category-product-list.html", context)
 
+# function product
 def product_detail_view(request, pid):
     product = Product.objects.get(pid=pid)
     # product = get_object_or_404(Product, pid=pid)
@@ -89,7 +90,7 @@ def product_detail_view(request, pid):
 
     return render(request, "app/product-detail.html", context)
 
-
+# Function search
 def search_view(request):
     query = request.GET.get("q") # Get the query string
 
@@ -113,7 +114,7 @@ def search_view(request):
 
     return render(request, "app/search.html", context)
 
-
+# Function Cart
 def add_to_cart(request):
     cart_product = {}
 
@@ -144,16 +145,20 @@ def cart_counter(request):
     return JsonResponse({'totalcartitems': total_items})
 
 def cart_view(request):
-    cart_total_amount = 0
-    if 'cart_data_obj' in request.session:
+    categories = Category.objects.all().annotate(product_count=Count("category"))
+    if 'cart_data_obj' in request.session and request.session['cart_data_obj']:
+        cart_total_amount = 0
         for p_id, item in request.session['cart_data_obj'].items():
             price = float(item['price'].replace('$', ''))
             cart_total_amount += int(item['qty']) * price
-        return render(request, "app/cart.html", {"cart_data":request.session['cart_data_obj'], 'totalcartitems': len(request.session['cart_data_obj']),'cart_total_amount':cart_total_amount} )
+        return render(request, "app/cart.html", {
+            "categories": categories,
+            "cart_data": request.session['cart_data_obj'],
+            "totalcartitems": len(request.session['cart_data_obj']),
+            "cart_total_amount": cart_total_amount
+        })
     else:
-        messages.warning(request, "Your cart is empty")            
-        return redirect("app:index")
-
+        return render(request, "app/empty-cart.html", {"categories": categories})
 
 def delete_item_from_cart(request):
     product_id = str(request.GET['id'])
@@ -194,9 +199,21 @@ def update_cart(request):
     return JsonResponse({"data": context, 'totalcartitems': len(request.session['cart_data_obj'])})
 
 
+def clear_cart(request):
+    if 'cart_data_obj' in request.session:
+        del request.session['cart_data_obj']
+        messages.success(request, "Your cart has been cleared.")
+    return redirect('app:cart')
 
-
-
+#Functon Checkout
+def checkout_view(request):
+    categories = Category.objects.all().annotate(product_count=Count("category"))
+    cart_total_amount = 0
+    if 'cart_data_obj' in request.session:
+        for p_id, item in request.session['cart_data_obj'].items():
+            price_str = item['price'].replace('$', '').strip()
+            cart_total_amount += int(item['qty']) * float(price_str)
+    return render(request, "app/checkout.html", {"categories": categories,"cart_data": request.session['cart_data_obj'], "totalcartitems": len(request.session['cart_data_obj']),'cart_total_amount':cart_total_amount})
 
 
 

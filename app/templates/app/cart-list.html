@@ -65,11 +65,10 @@
             <div class="col-lg-12">
               <div class="cart-shiping-update-wrapper">
                 <div class="cart-shiping-update">
-                  <a href="#">Continue Shopping</a>
+                  <a href="{% url "app:product-list" %}">Continue Shopping</a>
                 </div>
                 <div class="cart-clear">
-                  <button>Update Shopping Cart</button>
-                  <a href="#">Clear Shopping Cart</a>
+                  <a href="{% url 'app:clear-cart' %}">Clear Shopping Cart</a>
                 </div>
               </div>
             </div>
@@ -107,7 +106,7 @@
                 Grand Total <span>${{cart_total_amount|floatformat:2}}</span>
               </h4>
               {% if totalcartitems %}
-              <a href="checkout.html">Proceed to Checkout</a>
+              <a href="{% url "app:checkout" %}">Proceed to Checkout</a>
               {% endif %}
             </div>
           </div>

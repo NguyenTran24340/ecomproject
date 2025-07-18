@@ -1,7 +1,7 @@
 from django.contrib import admin
 from django.urls import path
 from.import views
-from app.views import index, product_list_view, category_list_view, category_product_list_view, product_detail_view, search_view, add_to_cart, cart_view, delete_item_from_cart, update_cart
+from app.views import index, product_list_view, category_list_view, category_product_list_view, product_detail_view, search_view, add_to_cart, cart_view, delete_item_from_cart, update_cart, checkout_view, clear_cart
 
 app_name = "app"
 urlpatterns = [
@@ -28,7 +28,13 @@ urlpatterns = [
     # Delete item form cart
     path("delete-from-cart/", delete_item_from_cart, name="delete-from-cart"),
 
-      # Update cart
+    # Update cart
     path("update-cart/", update_cart, name="update-cart"),
+
+    #Clear cart
+    path("clear-cart/", clear_cart, name="clear-cart"),
+
+    # Checkout
+    path("checkout/", checkout_view, name="checkout"),
 
 ]
