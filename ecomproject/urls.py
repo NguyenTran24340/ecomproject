@@ -37,12 +37,18 @@ schema_view = get_schema_view(
 
 urlpatterns = [
     path('admin/', admin.site.urls),
+
+    # App URLs
     path('', include('app.urls')),
     path("user/", include("userauths.urls")),
-    path('api/auth/', include('userauths.api_urls')),  # API login/register/logout
+
+    # API URLs
+    path('api/auth/', include('userauths.api_urls')),         # Login/Register API
+    path('api/', include('app.api.urls')),                    # Category, Product API v.v
+
+    # Swagger
     path('swagger/', schema_view.with_ui('swagger', cache_timeout=0), name='schema-swagger-ui'),
     re_path(r'^swagger(?P<format>\.json|\.yaml)$', schema_view.without_ui(cache_timeout=0), name='schema-json'),
-    path('swagger/', schema_view.with_ui('swagger', cache_timeout=0), name='schema-swagger-ui'),
 ]
 if settings.DEBUG:
     urlpatterns += static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
