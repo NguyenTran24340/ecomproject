@@ -6,7 +6,7 @@ from taggit.managers import TaggableManager
 # Create your models here.
 
 STATUS_CHOICE = (
-    ("process", "Processing"),
+    ("processing", "Processing"),
     ("shipped", "Shipped"),
     ("delivered", "Delivered"),
 )

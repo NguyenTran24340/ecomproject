@@ -1,0 +1,70 @@
+{% extends "app/base.html" %} {% load static %} {% block content %}
+<style>
+  ._failed {
+    border-bottom: solid 4px red !important;
+  }
+
+  ._failed i {
+    color: red !important;
+  }
+
+  ._success {
+    box-shadow: 0 15px 25px #00000019;
+    padding: 45px;
+    width: 100%;
+    text-align: center;
+    margin: 40px auto;
+    border-bottom: solid 4px #dc3545; /* đỏ đậm hơn */
+  }
+
+  .fail-icon {
+    font-size: 100px;
+    color: red;
+    margin-bottom: 20px;
+  }
+
+  h2 {
+    color: #2c3e50;
+    font-size: 28px;
+    font-weight: bold;
+  }
+
+  p {
+    color: #888;
+    font-size: 16px;
+  }
+
+  .btn-home {
+    display: inline-block;
+    margin-top: 30px;
+    padding: 12px 25px;
+    background-color: #27ae60;
+    color: #fff;
+    text-decoration: none;
+    border-radius: 5px;
+    font-size: 16px;
+    transition: none; /* không đổi màu */
+  }
+
+  .btn-home:hover {
+    background-color: #27ae60; /* giữ nguyên màu khi hover */
+    color: #fff;
+  }
+
+  .btn-home i {
+    margin-right: 8px;
+  }
+</style>
+
+<div class="row justify-content-center">
+  <div class="col-md-5">
+    <div class="message-box _success _failed">
+      <div class="fail-icon">❌</div>
+      <h2>Your payment failed</h2>
+      <p>Try again later</p>
+
+      <a href="/" class="btn-home"> <i>🏠</i> Back To Home Page </a>
+    </div>
+  </div>
+</div>
+{% endblock content %}

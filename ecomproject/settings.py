@@ -43,6 +43,9 @@ INSTALLED_APPS = [
     #Third Party
     'taggit',
 
+    #Paypal
+    'paypal.standard.ipn',
+
     #Custom Apps
     'app',
     'userauths',
@@ -177,4 +180,9 @@ SWAGGER_SETTINGS = {
     }
 }
 
+LOGIN_URL = "userauths:sign-in"
 AUTH_USER_MODEL = 'userauths.User'
+
+# Paypal
+PAYPAL_RECEIVER_EMAIL = 'sb-ms41l44797528@business.example.com'
+PAYPAL_TEST = True

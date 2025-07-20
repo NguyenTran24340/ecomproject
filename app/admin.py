@@ -13,6 +13,8 @@ class CategoryAdmin(admin.ModelAdmin):
 
 class CartOrderAdmin(admin.ModelAdmin):
     list_display = ['user', 'price', 'paid_status', 'order_date', 'product_status']
+    list_editable = ['paid_status', 'product_status']
+    list_display = ['user', 'price', 'paid_status', 'order_date', 'product_status']
 
 class CartOrderItemsAdmin(admin.ModelAdmin):
     list_display = ['order', 'invoice_no', 'item', 'image', 'qty', 'price', 'total']

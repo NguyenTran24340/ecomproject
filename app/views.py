@@ -6,6 +6,13 @@ from django.db.models import Q
 from django.contrib import messages
 import json
 from django.template.loader import render_to_string
+from django.contrib.auth.decorators import login_required
+#paypal
+from django.urls import reverse
+from django.conf import settings
+from django.views.decorators.csrf import csrf_exempt
+from paypal.standard.forms import PayPalPaymentsForm
+from uuid import uuid4
 
 # Create your views here.
 def index(request):
@@ -206,14 +213,101 @@ def clear_cart(request):
     return redirect('app:cart')
 
 #Functon Checkout
+@login_required
 def checkout_view(request):
+    cart_total_amount = 0
+    total_amount = 0
+
+    # Checking if cart_data_obj session exists
+    if 'cart_data_obj' in request.session:
+
+        #Getting total amount for paypal amount
+        for p_id, item in request.session['cart_data_obj'].items():
+            price_str = item['price'].replace('$', '').strip()
+            total_amount += int(item['qty']) * float(price_str)
+        
+        #Create order objects
+        order = CartOrder.objects.create(
+            user=request.user,
+            price=total_amount
+        )
+        
+        #Lưu order_id vào session để dùng lại ở payment_completed_view
+        request.session["order_id"] = order.id
+
+        #Getting total amount for the cart
+        for p_id, item in request.session['cart_data_obj'].items():
+            price_str = item['price'].replace('$', '').strip()
+            cart_total_amount += int(item['qty']) * float(price_str)
+
+            cart_order_products = CartOrderItems.objects.create(
+                order=order,
+                invoice_no="INVOICE_NO_" + str(order.id), # INVOICE_NO-5,
+                item=item['title'],
+                image=item['image'],
+                qty=item['qty'],
+                price=price_str,
+                total=int(item['qty']) * float(price_str)
+            )
+
+    host = request.get_host()
+    paypal_dict = {
+    'business': settings.PAYPAL_RECEIVER_EMAIL,
+    'amount': cart_total_amount,
+    'item_name': "Order-Item-No-" + str(order.id),
+    'invoice': "INVOICE_NO-" + str(order.id) , 
+    'currency_code': "USD",
+    'notify_url': 'http://{}{}'.format(host, reverse("app:paypal-ipn")),
+    'return_url': 'http://{}{}'.format(host, reverse("app:payment-completed")),
+    'cancel_url': 'http://{}{}'.format(host, reverse("app:payment-failed")),
+    }
+    paypal_payment_button = PayPalPaymentsForm(initial=paypal_dict)
+
     categories = Category.objects.all().annotate(product_count=Count("category"))
     cart_total_amount = 0
     if 'cart_data_obj' in request.session:
         for p_id, item in request.session['cart_data_obj'].items():
             price_str = item['price'].replace('$', '').strip()
             cart_total_amount += int(item['qty']) * float(price_str)
-    return render(request, "app/checkout.html", {"categories": categories,"cart_data": request.session['cart_data_obj'], "totalcartitems": len(request.session['cart_data_obj']),'cart_total_amount':cart_total_amount})
+    return render(request, "app/checkout.html", {"categories": categories,"cart_data": request.session['cart_data_obj'], "totalcartitems": len(request.session['cart_data_obj']),'cart_total_amount':cart_total_amount ,'paypal_payment_button':paypal_payment_button})
+
+
+# Paypal
+@login_required
+def payment_completed_view(request):
+    cart_data = request.session.get('cart_data_obj', {})
+    totalcartitems = len(cart_data)
+    cart_total_amount = 0
+
+    for p_id, item in cart_data.items():
+        price_str = item['price'].replace('$', '').strip()
+        cart_total_amount += int(item['qty']) * float(price_str)
+
+    # Update payment status
+    order_id = request.session.get("order_id")
+    if order_id:
+        try:
+            order = CartOrder.objects.get(id=order_id, user=request.user)
+            order.paid_status = True
+            order.save()
+
+            # Optional: clear order_id khỏi session nếu không cần nữa
+            del request.session["order_id"]
+        except CartOrder.DoesNotExist:
+            pass
+
+    # Clear cart
+   # request.session.pop('cart_data_obj', None)
+
+    return render(request, 'app/payment-completed.html', {
+        "cart_data": cart_data,
+        "totalcartitems": totalcartitems,
+        "cart_total_amount": cart_total_amount
+    })
+
+@login_required
+def payment_failed_view(request):
+    return render(request, 'app/payment-failed.html')
 
 
 

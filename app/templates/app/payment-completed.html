@@ -1,0 +1,236 @@
+{% load cart_tags %}
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Invoice</title>
+    <div class="dashboard-wrapper">
+      <a href="{% url "app:checkout" %}" class="dashboard-link">
+        <span class="icon">⚙️</span> Dashboard
+      </a>
+    </div>
+    <style>
+      body {
+        font-family: "Arial", sans-serif;
+        background-color: #f7f7f7;
+        padding: 30px;
+      }
+
+      .invoice-box {
+        background: #fff;
+        max-width: 800px;
+        margin: auto;
+        padding: 40px;
+        border-radius: 6px;
+        box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+      }
+
+      .invoice-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+      }
+
+      .logo {
+        font-size: 32px;
+        font-weight: bold;
+        color: #1e1e1e;
+      }
+
+      .circle {
+        border: 3px solid #2186eb;
+        border-radius: 50%;
+        padding: 0 5px;
+        margin: 0 2px;
+      }
+
+      .title {
+        font-size: 24px;
+        font-weight: bold;
+      }
+
+      .invoice-meta {
+        margin-top: 20px;
+        display: flex;
+        justify-content: space-between;
+      }
+
+      .address-section {
+        margin-top: 30px;
+        display: flex;
+        justify-content: space-between;
+        line-height: 1.6;
+      }
+
+      .invoice-table {
+        width: 100%;
+        margin-top: 30px;
+        border-collapse: collapse;
+      }
+
+      .invoice-table th,
+      .invoice-table td {
+        border: 1px solid #ddd;
+        padding: 12px;
+        text-align: left;
+        font-size: 14px;
+      }
+
+      .invoice-table thead {
+        background-color: #f3f3f3;
+        font-weight: bold;
+      }
+
+      .invoice-table tfoot td {
+        font-weight: bold;
+      }
+
+      .text-right {
+        text-align: right;
+      }
+
+      .note {
+        font-size: 13px;
+        margin-top: 30px;
+        color: #333;
+      }
+
+      .print-btn,
+      .download-btn {
+        padding: 10px 25px;
+        background: #2186eb;
+        color: #fff;
+        border: none;
+        border-radius: 6px;
+        cursor: pointer;
+        margin: 0 10px;
+        font-size: 15px;
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        transition: background 0.3s ease;
+      }
+
+      .print-btn:hover,
+      .download-btn:hover {
+        background: #186ed0;
+      }
+
+      @media print {
+        .button-group {
+          display: none;
+        }
+      }
+      .dashboard-link {
+        display: inline-flex;
+        align-items: center;
+
+        font-size: 20px;
+        font-weight: bold;
+        color: #c5a100;
+        text-decoration: none;
+        margin-bottom: 20px;
+        gap: 8px;
+        margin-left: 30px;
+      }
+
+      .dashboard-link:hover {
+        opacity: 0.8;
+      }
+
+      .dashboard-link .icon {
+        font-size: 22px;
+      }
+      .dashboard-wrapper {
+        text-align: center;
+        margin-bottom: 20px;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="invoice-box">
+      <div class="invoice-header">
+        <div class="logo">MI<span class="circle">O</span>CA</div>
+        <div class="title">Invoice</div>
+      </div>
+      <div class="invoice-meta">
+        <div><strong>Date:</strong> 05/12/2020</div>
+        <div><strong>Invoice No:</strong> 16835</div>
+      </div>
+
+      <div class="address-section">
+        <div>
+          <strong>Invoiced To:</strong> {{request.user|title}}<br />
+        </div>
+        <div>
+          <strong>Pay To:</strong>
+          Mioca Shop<br />
+         
+        </div>
+      </div>
+      
+      <table class="invoice-table">
+        
+        <thead>
+          <tr>
+            <th>Item</th>
+            <th>Rate</th>
+            <th>QTY</th>
+            <th>Amount</th>
+          </tr>
+        </thead>
+        <tbody>
+  {% for product_id, item in cart_data.items %}
+    <tr>
+      <td>{{ item.title }}</td>
+      {% with item.price|cut:"$"|floatformat:2 as clean_price %}
+      <td>${{ clean_price }}</td>
+      {% endwith %}
+      <td>{{ item.qty }}</td>
+      <td> {% with item.price|cut:"$" as clean_price %}${{ clean_price|mul:item.qty|floatformat:2 }}{% endwith %}</td>
+    </tr>
+  {% endfor %}
+</tbody>
+        <tfoot>
+          <tr>
+            <td colspan="3" class="text-right">Sub Total:</td>
+            <td>${{cart_total_amount|floatformat:2}}</td>
+          </tr>
+        
+          <tr>
+            <td colspan="3" class="text-right"><strong>Total:</strong></td>
+            <td><strong>${{cart_total_amount|floatformat:2}}</strong></td>
+          </tr>
+        </tfoot>
+      </table>
+      <p class="note">
+        <strong>{{request.user|title}}</strong> Thank for shopping at Mioca Shop
+      </p>
+
+      <div class="button-group">
+        <button onclick="window.print()" class="print-btn">🖨️ Print</button>
+        <button onclick="downloadInvoice()" class="download-btn">
+          ⬇ Download
+        </button>
+      </div>
+    </div>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+
+    <script>
+      function downloadInvoice() {
+        const invoice = document.querySelector(".invoice-box");
+
+        const opt = {
+          margin:       0.3,
+          filename:     'invoice_{{ request.user.username }}.pdf',
+          image:        { type: 'jpeg', quality: 0.98 },
+          html2canvas:  { scale: 2 },
+          jsPDF:        { unit: 'in', format: 'letter', orientation: 'portrait' }
+        };
+
+        html2pdf().set(opt).from(invoice).save();
+      }
+    </script>
+  </body>
+</html>
