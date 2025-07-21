@@ -278,6 +278,7 @@ def payment_completed_view(request):
     cart_data = request.session.get('cart_data_obj', {})
     totalcartitems = len(cart_data)
     cart_total_amount = 0
+    order = None 
 
     for p_id, item in cart_data.items():
         price_str = item['price'].replace('$', '').strip()
@@ -294,7 +295,7 @@ def payment_completed_view(request):
             # Optional: clear order_id khỏi session nếu không cần nữa
             del request.session["order_id"]
         except CartOrder.DoesNotExist:
-            pass
+            order = None 
 
     # Clear cart
    # request.session.pop('cart_data_obj', None)
@@ -302,7 +303,8 @@ def payment_completed_view(request):
     return render(request, 'app/payment-completed.html', {
         "cart_data": cart_data,
         "totalcartitems": totalcartitems,
-        "cart_total_amount": cart_total_amount
+        "cart_total_amount": cart_total_amount,
+        "order": order 
     })
 
 @login_required
