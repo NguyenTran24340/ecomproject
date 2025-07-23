@@ -1,7 +1,7 @@
 from django.contrib import admin
 from django.urls import path,include
 from.import views
-from app.views import index, product_list_view, category_list_view, category_product_list_view, product_detail_view, search_view, add_to_cart, cart_view, delete_item_from_cart, update_cart, checkout_view, clear_cart, payment_completed_view, payment_failed_view, customer_dashboard, order_detail
+from app.views import index, product_list_view, category_list_view, category_product_list_view, product_detail_view, search_view, add_to_cart, cart_view, delete_item_from_cart, update_cart, checkout_view, clear_cart, payment_completed_view, payment_failed_view, customer_dashboard, order_detail, make_address_default
 
 app_name = "app"
 urlpatterns = [
@@ -52,4 +52,6 @@ urlpatterns = [
     # order detail
     path("dashboard/order/<int:id>", order_detail, name="order-detail"),
 
+    # Making address default
+    path("make-default-address/", make_address_default, name="make-default-address")
 ]

@@ -123,28 +123,50 @@
             </div>
           </div>
           <div class="tab-pane" id="address">
-            <p>
-              The following addresses will be used on the checkout page by
-              default.
-            </p>
-            <h5 class="billing-address">Billing address</h5>
-            <a href="#" class="view">Edit</a>
-            <p class="mb-2"><strong>Michael M Hoskins</strong></p>
-            <address>
-              <span class="mb-1 d-inline-block"
-                ><strong>City:</strong> Seattle</span
-              >,
-              <br />
-              <span class="mb-1 d-inline-block"
-                ><strong>State:</strong> Washington(WA)</span
-              >,
-              <br />
-              <span class="mb-1 d-inline-block"
-                ><strong>ZIP:</strong> 98101</span
-              >,
-              <br />
-              <span><strong>Country:</strong> USA</span>
-            </address>
+            <div>
+              <form class="mb-4" method="POST">
+                {% csrf_token %}
+                <div>
+                   <h5>Add Address</h5>
+                </div>
+                <div class="row">
+                  <div class="form-group col-md-4">
+                    <input placeholder="Name" required="" class="form-control" name="name" type="text" />
+                  </div>
+                  <div class="form-group col-md-4">
+                    <input placeholder="Address" required="" class="form-control" name="address" type="text" />
+                  </div>
+                  <div class="form-group col-md-4">
+                    <input placeholder="Phone" required="" class="form-control" name="mobile" />
+                  </div>
+                  <div >
+                    <button type="submit" style="background-color: #eaaa85; color: white; padding: 10px 20px; border: none; border-radius: 5px; margin-top: 15px; " name="submit" value="Submit">Save Address</button>
+                  </div>
+                </div>
+              </form>
+            </div>
+            {% for a in address %}
+            <h5 class="billing-address">Address {{forloop.counter}}</h5>
+            <div class="card-body border rounded" style="margin-bottom: 20px;">
+              <address>
+                <p class="mb-2"><strong>Name:</strong> {{ a.name }}</p>
+                <p><strong>Address:</strong> {{ a.address }}</p>
+                <p><strong>Mobile:</strong> {{ a.mobile|default:"No mobile" }}</p>
+                 <!--<p><strong>Status:</strong> {{ a.status }}</p>-->
+                <!--<p>{{ a.id }}</p>--> 
+              </address>
+              <div style="display: flex; align-items: center; gap: 10px;"> 
+                {% if a.status %}
+                <i data-address-id="{{ a.id }}" class="fa fa-check-circle text-success check check{{a.id}}" style="font-size: 24px;"></i>
+                <button data-address-id="{{ a.id }}" class="btn make-default-address button{{a.id}} action_btn" style="display:none; background-color: #eaaa85; color: white; padding: 10px 20px; border: none; border-radius: 5px; cursor: pointer; font-size: 16px;">Make Default</button>
+                {% else %}
+                <i data-address-id="{{ a.id }}" class="fa fa-check-circle text-success check check{{a.id}}" style="font-size: 24px; display: none;"></i>
+                <button data-address-id="{{ a.id }}" class="btn make-default-address button{{a.id}} action_btn" style="display: block; background-color: #eaaa85; color: white; padding: 10px 20px; border: none; border-radius: 5px; cursor: pointer; font-size: 16px;">Make Default</button>
+                {% endif %}
+              </div>
+            </div>
+            {% endfor %}
+            
           </div>
           <div class="tab-pane fade" id="account-details">
             <h3>Account details</h3>
@@ -224,4 +246,6 @@
     </div>
   </div>
 </div>
+    <script src="{% static 'assets/js/function.js' %}"></script>
+
 {% endblock content %}
