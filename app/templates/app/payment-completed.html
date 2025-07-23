@@ -155,12 +155,16 @@
         <div class="title">Invoice</div>
       </div>
       <div class="invoice-meta">
+        <p></p>
         <div><strong>Invoice No:</strong> INVOICE_NO_{{ order.id }}</div>
       </div>
 
       <div class="address-section">
         <div>
-          <strong>Invoiced To:</strong> {{request.user|title}}<br />
+          <strong>Invoiced To:</strong> {{request.user|title}}
+          <p>{{active_address.name}}</p>
+          <p>{{active_address.address}}</p>
+          <p>{{active_address.mobile}}</p>
         </div>
         <div>
           <strong>Pay To:</strong>

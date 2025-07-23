@@ -307,11 +307,14 @@ def payment_completed_view(request):
     # Clear cart
    # request.session.pop('cart_data_obj', None)
 
+    active_address = Address.objects.get(user=request.user, status=True)
+
     return render(request, 'app/payment-completed.html', {
         "cart_data": cart_data,
         "totalcartitems": totalcartitems,
         "cart_total_amount": cart_total_amount,
-        "order": order 
+        "order": order,
+        "active_address":active_address
     })
 
 @login_required
