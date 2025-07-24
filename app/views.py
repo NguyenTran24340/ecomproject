@@ -7,12 +7,12 @@ from django.contrib import messages
 import json
 from django.template.loader import render_to_string
 from django.contrib.auth.decorators import login_required
+from django.core import serializers
 #paypal
 from django.urls import reverse
 from django.conf import settings
 from django.views.decorators.csrf import csrf_exempt
 from paypal.standard.forms import PayPalPaymentsForm
-from uuid import uuid4
 
 # Create your views here.
 def index(request):
@@ -156,7 +156,11 @@ def cart_view(request):
     if 'cart_data_obj' in request.session and request.session['cart_data_obj']:
         cart_total_amount = 0
         for p_id, item in request.session['cart_data_obj'].items():
-            price = float(item['price'].replace('$', ''))
+            try:
+                price = float(item['price'].replace('$', ''))
+            except ValueError:
+                price = 0
+
             cart_total_amount += int(item['qty']) * price
         return render(request, "app/cart.html", {
             "categories": categories,
@@ -345,6 +349,7 @@ def customer_dashboard(request):
     }
     return render(request, 'app/dashboard.html', context)
 
+#function checkout
 def order_detail(request, id):
     order = CartOrder.objects.get(user=request.user, id=id)
     order_items = CartOrderItems.objects.filter(order=order)
@@ -359,3 +364,53 @@ def make_address_default(request):
     Address.objects.update(status=False)
     Address.objects.filter(id=id).update(status=True)
     return JsonResponse({"boolean": True})
+
+# function wishlist
+@login_required
+def wishlist_view(request):
+    wishlist = Wishlist.objects.all()
+    context = {
+        "w": wishlist
+    }
+    return render(request, "app/wishlist.html", context)
+
+
+def add_to_wishlist(request):
+    product_id = request.GET['id']
+    product = Product.objects.get(id=product_id)
+
+    context = {}
+
+    wishlist_count = Wishlist.objects.filter(product=product, user=request.user).count()
+    print(wishlist_count)
+
+    if wishlist_count > 0:
+        context = {
+            "bool": True
+        }
+    else:
+        new_wishlist = Wishlist.objects.create(
+            product=product,
+            user=request.user
+        )
+        context = {
+            "bool": True
+        }
+
+    return JsonResponse(context)
+
+@login_required
+def remove_wishlist(request):
+    pid = request.GET['id']
+    wishlist =  Wishlist.objects.filter(user=request.user)
+    wishlist_d =  Wishlist.objects.get(id=pid)
+    delete_product = wishlist_d.delete()
+
+    context = {
+        "bool": True,
+        "w": wishlist
+    }
+    
+    wishlist_json = serializers.serialize('json', wishlist)
+    t = render_to_string('app/wishlist-list.html', context)
+    return JsonResponse({'data': t, 'w': wishlist_json})

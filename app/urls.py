@@ -1,7 +1,7 @@
 from django.contrib import admin
 from django.urls import path,include
 from.import views
-from app.views import index, product_list_view, category_list_view, category_product_list_view, product_detail_view, search_view, add_to_cart, cart_view, delete_item_from_cart, update_cart, checkout_view, clear_cart, payment_completed_view, payment_failed_view, customer_dashboard, order_detail, make_address_default
+from app.views import index, product_list_view, category_list_view, category_product_list_view, product_detail_view, search_view, add_to_cart, cart_view, delete_item_from_cart, update_cart, checkout_view, clear_cart, payment_completed_view, payment_failed_view, customer_dashboard, order_detail, make_address_default,wishlist_view ,add_to_wishlist,remove_wishlist
 
 app_name = "app"
 urlpatterns = [
@@ -53,5 +53,14 @@ urlpatterns = [
     path("dashboard/order/<int:id>", order_detail, name="order-detail"),
 
     # Making address default
-    path("make-default-address/", make_address_default, name="make-default-address")
+    path("make-default-address/", make_address_default, name="make-default-address"),
+
+    # wishlist url
+    path("wishlist/", wishlist_view, name="wishlist"),
+
+    # adding to wishlist
+    path("add-to-wishlist/", add_to_wishlist, name="add-to-wishlist"),
+
+    # Removing from wishlist
+    path("remove-from-wishlist/", remove_wishlist, name="remove-from-wishlist")
 ]
