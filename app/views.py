@@ -1,10 +1,10 @@
 from django.shortcuts import render, get_object_or_404, redirect
 from django.http import HttpResponse, JsonResponse
 from app.models import Product, Category, CartOrder, CartOrderItems, ProductImages, ProductReview, Wishlist, Address
+from userauths.models import ContactUs
 from django.db.models import Count
 from django.db.models import Q
 from django.contrib import messages
-import json
 from django.template.loader import render_to_string
 from django.contrib.auth.decorators import login_required
 from django.core import serializers
@@ -414,3 +414,28 @@ def remove_wishlist(request):
     wishlist_json = serializers.serialize('json', wishlist)
     t = render_to_string('app/wishlist-list.html', context)
     return JsonResponse({'data': t, 'w': wishlist_json})
+
+def contact(request):
+    return render(request, 'app/contact.html')
+
+def ajax_contact_form(request):
+    full_name = request.GET['full_name']
+    email = request.GET['email']
+    phone = request.GET['phone']
+    subject = request.GET['subject']
+    message = request.GET['message']
+
+    contact = ContactUs.objects.create(
+        full_name=full_name,
+        email=email,
+        phone=phone,
+        subject=subject,
+        message=message,
+    )
+
+    data = {
+        "bool": True,
+        "message": "Message Sent Successfully"
+    }
+    
+    return JsonResponse({"data":data})
