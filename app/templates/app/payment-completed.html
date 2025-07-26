@@ -200,10 +200,13 @@
             <td colspan="3" class="text-right">Sub Total:</td>
             <td>${{cart_total_amount|floatformat:2}}</td>
           </tr>
-        
+          <tr>
+            <td colspan="3" class="text-right">Discount:</td>
+            <td>    {% if applied_coupon %} -${{ discount|floatformat:2 }}{% else %}-{% endif %}</td>
+          </tr>
           <tr>
             <td colspan="3" class="text-right"><strong>Total:</strong></td>
-            <td><strong>${{cart_total_amount|floatformat:2}}</strong></td>
+            <td><strong>${{ grand_total|floatformat:2 }}</strong></td>
           </tr>
         </tfoot>
       </table>

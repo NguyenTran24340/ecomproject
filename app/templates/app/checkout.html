@@ -160,96 +160,36 @@
                 </ul>
               </div>
               {% endfor %}
+               <div class="your-order-total">
+                <ul>
+                  <li class="order-total">Total Product</li>
+                  <li>${{cart_total_amount|floatformat:2}}</li>
+                </ul>
+              </div>
+              {% if applied_coupon %}
+              <div class="your-order-bottom">
+              <ul>
+                <li class="your-order-shipping"> Coupon ({{ applied_coupon.code }}) </li>
+                <li>- ${{ discount|floatformat:2 }}</li>
+              </ul>
+              </div> 
+              {% endif %}
+
+              <br/>
               <div class="your-order-bottom">
                 <ul>
                   <li class="your-order-shipping">Shipping</li>
                   <li>Free shipping</li>
                 </ul>
               </div>
-              <div class="your-order-total">
+               <div class="your-order-total">
                 <ul>
-                  <li class="order-total">Total</li>
-                  <li>${{cart_total_amount|floatformat:2}}</li>
+                  <li class="order-total">Grand Total</li>
+                  <li>${{ grand_total|floatformat:2 }}</li>
                 </ul>
               </div>
             </div>
-            <div class="payment-method">
-              <div class="payment-accordion element-mrg">
-                <div id="faq" class="panel-group">
-                  <div class="panel panel-default single-my-account m-0">
-                    <div class="panel-heading my-account-title">
-                      <h4 class="panel-title">
-                        <a
-                          data-bs-toggle="collapse"
-                          href="#my-account-1"
-                          class="collapsed"
-                          aria-expanded="true"
-                          >Direct bank transfer</a
-                        >
-                      </h4>
-                    </div>
-                    <div
-                      id="my-account-1"
-                      class="panel-collapse collapse show"
-                      data-bs-parent="#faq"
-                    >
-                      <div class="panel-body">
-                        <p>
-                          Please send a check to Store Name, Store Street, Store
-                          Town, Store State / County, Store Postcode.
-                        </p>
-                      </div>
-                    </div>
-                  </div>
-                  <div class="panel panel-default single-my-account m-0">
-                    <div class="panel-heading my-account-title">
-                      <h4 class="panel-title">
-                        <a
-                          data-bs-toggle="collapse"
-                          href="#my-account-2"
-                          aria-expanded="false"
-                          class="collapsed"
-                          >Check payments</a
-                        >
-                      </h4>
-                    </div>
-                    <div
-                      id="my-account-2"
-                      class="panel-collapse collapse"
-                      data-bs-parent="#faq"
-                    >
-                      <div class="panel-body">
-                        <p>
-                          Please send a check to Store Name, Store Street, Store
-                          Town, Store State / County, Store Postcode.
-                        </p>
-                      </div>
-                    </div>
-                  </div>
-                  <div class="panel panel-default single-my-account m-0">
-                    <div class="panel-heading my-account-title">
-                      <h4 class="panel-title">
-                        <a data-bs-toggle="collapse" href="#my-account-3"
-                          >Cash on delivery</a
-                        >
-                      </h4>
-                    </div>
-                    <div
-                      id="my-account-3"
-                      class="panel-collapse collapse"
-                      data-bs-parent="#faq"
-                    >
-                      <div class="panel-body">
-                        <p>
-                          Please send a check to Store Name, Store Street, Store
-                          Town, Store State / County, Store Postcode.
-                        </p>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
+            
           </div>
           <div class="Place-order mt-25 w-50" >
             {{paypal_payment_button.render}}

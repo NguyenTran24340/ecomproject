@@ -108,6 +108,7 @@ class CartOrder(models.Model):
     paid_status = models.BooleanField(default=False)
     order_date = models.DateTimeField(auto_now_add=True)
     product_status = models.CharField(choices=STATUS_CHOICE, max_length=30, default="processing")
+    coupons = models.ManyToManyField("app.Coupon", blank=True)
 
     class Meta:
         verbose_name_plural = "Cart Order"
@@ -165,3 +166,11 @@ class Address(models.Model):
 
     class Meta:
         verbose_name_plural = "Addresses" 
+
+class Coupon(models.Model):
+    code = models.CharField(max_length=50)
+    discount = models.IntegerField(default=1)
+    active = models.BooleanField(default=True)
+
+    def __str__(self):
+        return self.code

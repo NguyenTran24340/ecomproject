@@ -1,6 +1,6 @@
 from django.shortcuts import render, get_object_or_404, redirect
 from django.http import HttpResponse, JsonResponse
-from app.models import Product, Category, CartOrder, CartOrderItems, ProductImages, ProductReview, Wishlist, Address
+from app.models import Product, Category, CartOrder, CartOrderItems, ProductImages, ProductReview, Wishlist, Address, Coupon
 from userauths.models import ContactUs
 from django.db.models import Count
 from django.db.models import Q
@@ -153,8 +153,13 @@ def cart_counter(request):
 
 def cart_view(request):
     categories = Category.objects.all().annotate(product_count=Count("category"))
+
+    cart_total_amount = 0  # Tổng tiền chưa giảm
+    grand_total = 0        # Tổng tiền sau khi giảm
+    discount = 0
+    applied_coupon = None
+
     if 'cart_data_obj' in request.session and request.session['cart_data_obj']:
-        cart_total_amount = 0
         for p_id, item in request.session['cart_data_obj'].items():
             try:
                 price = float(item['price'].replace('$', ''))
@@ -162,11 +167,39 @@ def cart_view(request):
                 price = 0
 
             cart_total_amount += int(item['qty']) * price
+        grand_total = cart_total_amount
+
+        # ===  COUPON ===
+        applied_coupon = None
+        discount = 0
+        if request.method == "POST":
+            code = request.POST.get("coupon_code")
+            coupon = Coupon.objects.filter(code=code, active=True).first()
+            if coupon:
+                 request.session['applied_coupon_id'] = coupon.id
+                 messages.success(request, f"Coupon '{coupon.code}' applied successfully.")
+                 return redirect("app:cart")
+            else:
+                messages.warning(request, "Invalid or expired coupon.")
+                return redirect("app:cart")
+            
+        # Get saved coupons if any
+        if request.session.get("applied_coupon_id"):
+            try:
+                applied_coupon = Coupon.objects.get(id=request.session["applied_coupon_id"])
+                discount = applied_coupon.discount
+                grand_total -= discount
+            except Coupon.DoesNotExist:
+                pass
+
         return render(request, "app/cart.html", {
             "categories": categories,
             "cart_data": request.session['cart_data_obj'],
             "totalcartitems": len(request.session['cart_data_obj']),
-            "cart_total_amount": cart_total_amount
+            "cart_total_amount": cart_total_amount,  # trước khi trừ
+            "grand_total": grand_total,              # đã trừ coupon
+            "applied_coupon": applied_coupon,
+            "discount": discount,
         })
     else:
         return render(request, "app/empty-cart.html", {"categories": categories})
@@ -201,87 +234,136 @@ def update_cart(request):
             request.session['cart_data_obj'] = cart_data
 
     cart_total_amount = 0
+    grand_total = 0
+    discount = 0
+    applied_coupon = None
+ 
     if 'cart_data_obj' in request.session:
         for p_id, item in request.session['cart_data_obj'].items():
             price_str = item['price'].replace('$', '').strip()
             cart_total_amount += int(item['qty']) * float(price_str)
 
-    context = render_to_string( "app/cart-list.html", {"cart_data":request.session['cart_data_obj'], 'totalcartitems': len(request.session['cart_data_obj']),'cart_total_amount':cart_total_amount},request=request )
+        grand_total = cart_total_amount
+
+        if request.session.get("applied_coupon_id"):
+            try:
+                applied_coupon = Coupon.objects.get(id=request.session["applied_coupon_id"])
+                discount = applied_coupon.discount
+                grand_total -= discount
+                if grand_total < 0:
+                    grand_total = 0
+            except Coupon.DoesNotExist:
+                applied_coupon = None   
+
+    context = render_to_string("app/cart-list.html",{
+        "cart_data": request.session['cart_data_obj'],
+        "totalcartitems": len(request.session['cart_data_obj']),
+        "cart_total_amount": cart_total_amount,
+        "grand_total": grand_total,  
+        "discount": discount,     
+        "applied_coupon": applied_coupon, 
+    }, request=request)
     return JsonResponse({"data": context, 'totalcartitems': len(request.session['cart_data_obj'])})
 
 
 def clear_cart(request):
+    #Remove cart
     if 'cart_data_obj' in request.session:
         del request.session['cart_data_obj']
-        messages.success(request, "Your cart has been cleared.")
+    
+    #Remove coupon
+    if 'applied_coupon_id' in request.session:
+        del request.session['applied_coupon_id']
+
+        messages.success(request, "Your cart and coupon has been cleared.")
     return redirect('app:cart')
 
 #Functon Checkout
 @login_required
 def checkout_view(request):
     cart_total_amount = 0
-    total_amount = 0
+    grand_total = 0
+    discount = 0
+    applied_coupon = None
+    order = None  
 
-    # Checking if cart_data_obj session exists
-    if 'cart_data_obj' in request.session:
-
-        #Getting total amount for paypal amount
+    if 'cart_data_obj' in request.session and request.session['cart_data_obj']:
+        # Calculate the total initial product
         for p_id, item in request.session['cart_data_obj'].items():
-            price_str = item['price'].replace('$', '').strip()
-            total_amount += int(item['qty']) * float(price_str)
-        
-        #Create order objects
+            price = float(item['price'].replace('$', '').strip())
+            quantity = int(item['qty'])
+            cart_total_amount += price * quantity
+
+        grand_total = cart_total_amount
+
+          # If there is a coupon, discount from grand_total
+        if request.session.get("applied_coupon_id"):
+            try:
+                applied_coupon = Coupon.objects.get(id=request.session["applied_coupon_id"])
+                discount = applied_coupon.discount
+                grand_total -= discount
+                if grand_total < 0:
+                    grand_total = 0
+            except Coupon.DoesNotExist:
+                applied_coupon = None
+
+         # Create order
         order = CartOrder.objects.create(
             user=request.user,
-            price=total_amount
+            price=grand_total
         )
-        
-        #Lưu order_id vào session để dùng lại ở payment_completed_view
         request.session["order_id"] = order.id
-
+        
         #Getting total amount for the cart
         for p_id, item in request.session['cart_data_obj'].items():
-            price_str = item['price'].replace('$', '').strip()
-            cart_total_amount += int(item['qty']) * float(price_str)
-
-            cart_order_products = CartOrderItems.objects.create(
+            price = float(item['price'].replace('$', '').strip())
+            quantity = int(item['qty'])
+            CartOrderItems.objects.create(
                 order=order,
-                invoice_no="INVOICE_NO_" + str(order.id), # INVOICE_NO-5,
+                invoice_no="INVOICE_NO_" + str(order.id),
                 item=item['title'],
                 image=item['image'],
-                qty=item['qty'],
-                price=price_str,
-                total=int(item['qty']) * float(price_str)
+                qty=quantity,
+                price=price,
+                total=price * quantity,
             )
 
-    host = request.get_host()
-    paypal_dict = {
-    'business': settings.PAYPAL_RECEIVER_EMAIL,
-    'amount': cart_total_amount,
-    'item_name': "Order-Item-No-" + str(order.id),
-    'invoice': "INVOICE_NO-" + str(order.id) , 
-    'currency_code': "USD",
-    'notify_url': 'http://{}{}'.format(host, reverse("app:paypal-ipn")),
-    'return_url': 'http://{}{}'.format(host, reverse("app:payment-completed")),
-    'cancel_url': 'http://{}{}'.format(host, reverse("app:payment-failed")),
-    }
-    paypal_payment_button = PayPalPaymentsForm(initial=paypal_dict)
+          # Send the correct amount to PayPal
+        host = request.get_host()
+        paypal_dict = {
+            'business': settings.PAYPAL_RECEIVER_EMAIL,
+            'amount': "%.2f" % grand_total,
+            'item_name': "Order-Item-No-" + str(order.id),
+            'invoice': "INVOICE_NO-" + str(order.id),
+            'currency_code': "USD",
+            'notify_url': f'http://{host}{reverse("app:paypal-ipn")}',
+            'return_url': f'http://{host}{reverse("app:payment-completed")}',
+            'cancel_url': f'http://{host}{reverse("app:payment-failed")}',
+        }
+        paypal_payment_button = PayPalPaymentsForm(initial=paypal_dict)
+
+    else:
+     # If there is no cart then redirect or report an error
+        messages.warning(request, "Your cart is empty. Please add some products.")
+        return redirect("app:cart")
 
     categories = Category.objects.all().annotate(product_count=Count("category"))
-    cart_total_amount = 0
-    if 'cart_data_obj' in request.session:
-        for p_id, item in request.session['cart_data_obj'].items():
-            price_str = item['price'].replace('$', '').strip()
-            cart_total_amount += int(item['qty']) * float(price_str)
-
     try:
         active_address = Address.objects.get(user=request.user, status=True)
-    except:
-        messages.warning(request, "There are multiple addresses, only one should be activated.")
+    except Address.DoesNotExist:
         active_address = None
 
-    return render(request, "app/checkout.html", {"categories": categories,"cart_data": request.session['cart_data_obj'], "totalcartitems": len(request.session['cart_data_obj']),'cart_total_amount':cart_total_amount ,'paypal_payment_button':paypal_payment_button, 'active_address':active_address})
-
+    return render(request, "app/checkout.html", {
+        "categories": categories,
+        "cart_data": request.session['cart_data_obj'],
+        "totalcartitems": len(request.session['cart_data_obj']),
+        "cart_total_amount": cart_total_amount,
+        "grand_total": grand_total,
+        "discount": discount,
+        "applied_coupon": applied_coupon,
+        "paypal_payment_button": paypal_payment_button,
+        "active_address": active_address,
+    })
 
 # Paypal
 @login_required
@@ -295,6 +377,20 @@ def payment_completed_view(request):
         price_str = item['price'].replace('$', '').strip()
         cart_total_amount += int(item['qty']) * float(price_str)
 
+     #Coupon
+    applied_coupon = None
+    discount = 0
+    grand_total = cart_total_amount
+
+    if request.session.get("applied_coupon_id"):
+        try:
+            applied_coupon = Coupon.objects.get(id=request.session["applied_coupon_id"])
+            discount = applied_coupon.discount
+            grand_total -= discount
+            if grand_total < 0:
+                grand_total = 0
+        except Coupon.DoesNotExist:
+            pass
     # Update payment status
     order_id = request.session.get("order_id")
     if order_id:
@@ -309,7 +405,10 @@ def payment_completed_view(request):
             order = None 
 
     # Clear cart
-   # request.session.pop('cart_data_obj', None)
+    request.session.pop('cart_data_obj', None)
+
+    #remove coupon 
+    request.session.pop('applied_coupon_id', None)
 
     active_address = Address.objects.get(user=request.user, status=True)
 
@@ -318,7 +417,10 @@ def payment_completed_view(request):
         "totalcartitems": totalcartitems,
         "cart_total_amount": cart_total_amount,
         "order": order,
-        "active_address":active_address
+        "active_address":active_address,
+        "grand_total": grand_total,
+        "discount": discount,
+        "applied_coupon": applied_coupon,
     })
 
 @login_required

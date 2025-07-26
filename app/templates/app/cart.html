@@ -84,12 +84,14 @@
                   Use Coupon Code
                 </h4>
               </div>
-              <div class="discount-code">
+              <div class="discount-code " >
                 <p>Enter your coupon code if you have one.</p>
-                <form>
-                  <input type="text" required="" name="name" />
+                <form method="POST">
+                  {% csrf_token %}
+                  <input type="text" required name="coupon_code" placeholder="Enter coupon code" />
                   <button class="cart-btn-2" type="submit">Apply Coupon</button>
                 </form>
+                {% if applied_coupon %}<p class="text-success">Applied Coupon: {{ applied_coupon.code }} ( -${{ discount|floatformat:2 }} )</p>{% endif %}
               </div>
             </div>
           </div>
@@ -105,7 +107,7 @@
               <h5>Shipping <span>Free</span></h5>
           
               <h4 class="grand-totall-title">
-                Grand Total <span>${{cart_total_amount|floatformat:2}}</span>
+                Grand Total <span>${{grand_total|floatformat:2 |floatformat:2}}</span>
               </h4>
               {% if totalcartitems %}
               <a href="{% url "app:checkout" %}">Proceed to Checkout</a>
