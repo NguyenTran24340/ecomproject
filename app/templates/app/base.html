@@ -88,61 +88,8 @@
                   <li class="dropdown">
                     <a href="{% url "app:index" %}">Home <i class=""></i></a>
                   </li>
-                  <li><a href="about.html">About</a></li>
-                  <li class="dropdown position-static">
-                    <a href="about.html"
-                      >Pages <i class="fa fa-angle-down"></i
-                    ></a>
-                    <ul class="mega-menu d-block">
-                      <li class="d-flex">
-                        <ul class="d-block">
-                          <li class="title"><a href="#">Inner Pages</a></li>
-                          <li><a href="404.html">404 Page</a></li>
-                          <li>
-                            <a href="privacy-policy.html">Privacy Policy</a>
-                          </li>
-                          <li><a href="faq.html">Faq Page</a></li>
-                          <li>
-                            <a href="coming-soon.html">Coming Soon Page</a>
-                          </li>
-                        </ul>
-                        <ul class="d-block">
-                          <li class="title">
-                            <a href="#">Other Shop Pages</a>
-                          </li>
-                          <li><a href="cart.html">Cart Page</a></li>
-                          <li><a href="checkout.html">Checkout Page</a></li>
-                          <li><a href="compare.html">Compare Page</a></li>
-                          <li><a href="{% url "app:wishlist" %}">Wishlist Page</a></li>
-                        </ul>
-                        <ul class="d-block">
-                          <li class="title">
-                            <a href="#">Related Shop Pages</a>
-                          </li>
-                          <li><a href="">Account Page</a></li>
-                          <li>
-                            <a href="login.html">Login & Register Page</a>
-                          </li>
-                          <li><a href="empty-cart.html">Empty Cart Page</a></li>
-                          <li>
-                            <a href="thank-you-page.html">Thank You Page</a>
-                          </li>
-                        </ul>
-                        <ul
-                          class="d-flex align-items-center p-0 border-0 flex-column justify-content-center"
-                        >
-                          <li>
-                            <a class="p-0" href="shop-left-sidebar.html"
-                              ><img
-                                class="img-responsive w-100"
-                                src="{% static 'assets/images/banner/menu-banner-1.jpg' %}"
-                                alt=""
-                            /></a>
-                          </li>
-                        </ul>
-                      </li>
-                    </ul>
-                  </li>
+                  <li><a href="{% url "app:about" %}">About</a></li>
+                 
 
                   <li class="dropdown">
                     <a href="#">Category <i class="fa fa-angle-down"></i></a>
@@ -161,33 +108,9 @@
                     
                   </li>
                   <li class="dropdown">
-                    <a href="#">Blog <i class="fa fa-angle-down"></i></a>
-                    <ul class="sub-menu">
-                      <li><a href="blog-grid.html">Blog Grid Page</a></li>
-                      <li>
-                        <a href="blog-grid-left-sidebar.html"
-                          >Grid Left Sidebar</a
-                        >
-                      </li>
-                      <li>
-                        <a href="blog-grid-right-sidebar.html"
-                          >Grid Right Sidebar</a
-                        >
-                      </li>
-                      <li><a href="blog-single.html">Blog Single Page</a></li>
-                      <li>
-                        <a href="blog-single-left-sidebar.html"
-                          >Single Left Sidebar</a
-                        >
-                      </li>
-                      <li>
-                        <a href="blog-single-right-sidebar.html"
-                          >Single Right Sidbar</a
-                        >
-                      </li>
-                    </ul>
+                    <a href="{% url "app:blog" %}">Blog </a>                    
                   </li>
-                  <li><a href="contact.html">Contact</a></li>
+                  <li><a href="{% url "app:contact" %}">Contact</a></li>
                 </ul>
               </div>
             </div>

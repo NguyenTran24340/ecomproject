@@ -15,6 +15,21 @@ from django.views.decorators.csrf import csrf_exempt
 from paypal.standard.forms import PayPalPaymentsForm
 
 # Create your views here.
+def blog(request):
+    categories = Category.objects.all().annotate(product_count=Count("category"))
+    context = {
+        "categories": categories
+    }
+    return render(request, 'app/blog.html',context)
+
+def about(request):
+    categories = Category.objects.all().annotate(product_count=Count("category"))
+    context = {
+        "categories": categories
+    }
+    return render(request, 'app/about.html',context)
+
+
 def index(request):
     fabric_category = Category.objects.filter(title__iexact="Fabric").first()
     wooden_category = Category.objects.filter(title__iexact="Wooden").first()
@@ -518,7 +533,11 @@ def remove_wishlist(request):
     return JsonResponse({'data': t, 'w': wishlist_json})
 
 def contact(request):
-    return render(request, 'app/contact.html')
+    categories = Category.objects.all().annotate(product_count=Count("category"))
+    context = {
+        "categories": categories
+    }
+    return render(request, 'app/contact.html',context)
 
 def ajax_contact_form(request):
     full_name = request.GET['full_name']
