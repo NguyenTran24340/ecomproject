@@ -1,10 +1,20 @@
 from django.urls import path, include
 from rest_framework.routers import DefaultRouter
+
+# Category
 from app.api.views.category_views import (
     CategoryListCreateView,
     CategoryRetrieveUpdateDeleteView
 )
+
+# Product
 from app.api.views.product_views import ProductViewSet
+
+# Cart
+from app.api.views.cart_views import (
+    CartView, AddToCartView, UpdateCartView, RemoveFromCartView
+)
+
 
 router = DefaultRouter()
 router.register(r'products', ProductViewSet, basename='products')
@@ -16,4 +26,10 @@ urlpatterns = [
 
     # Product
     path('', include(router.urls)),
+
+    # Cart
+    path('cart/', CartView.as_view(), name='cart-view'),
+    path('cart/add/', AddToCartView.as_view(), name='cart-add'),
+    path('cart/update/', UpdateCartView.as_view(), name='cart-update'),
+    path('cart/remove/', RemoveFromCartView.as_view(), name='cart-remove'),
 ]
