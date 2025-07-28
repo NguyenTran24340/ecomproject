@@ -8,7 +8,7 @@ class ProductSerializer(serializers.ModelSerializer):
         queryset=Category.objects.all()
     )
     user = serializers.SlugRelatedField(
-        slug_field='username',   # hoặc dùng 'email' nếu bạn muốn
+        slug_field='username', 
         queryset=User.objects.all()
     )
     image = serializers.ImageField(required=False)

@@ -225,17 +225,53 @@ def delete_item_from_cart(request):
     if 'cart_data_obj' in request.session:
         if product_id in request.session['cart_data_obj']:
             cart_data = request.session['cart_data_obj']
-            del request.session['cart_data_obj'][product_id]
+            del cart_data[product_id]
             request.session['cart_data_obj'] = cart_data
 
+    cart_data = request.session.get('cart_data_obj', {})
     cart_total_amount = 0
-    if 'cart_data_obj' in request.session:
-        for p_id, item in request.session['cart_data_obj'].items():
-            price_str = item['price'].replace('$', '').strip()
-            cart_total_amount += int(item['qty']) * float(price_str)
+    grand_total = 0
+    discount = 0
+    applied_coupon = None
 
-    context = render_to_string( "app/cart-list.html", {"cart_data":request.session['cart_data_obj'], 'totalcartitems': len(request.session['cart_data_obj']),'cart_total_amount':cart_total_amount},request=request )
-    return JsonResponse({"data": context, 'totalcartitems': len(request.session['cart_data_obj'])})
+    # Total product
+    for p_id, item in cart_data.items():
+        price_str = item['price'].replace('$', '').strip()
+        cart_total_amount += int(item['qty']) * float(price_str)
+
+    # Coupon
+    if request.session.get("applied_coupon_id"):
+        try:
+            applied_coupon = Coupon.objects.get(id=request.session["applied_coupon_id"])
+            discount = applied_coupon.discount
+            grand_total = cart_total_amount - discount
+            if grand_total < 0:
+                grand_total = 0
+        except Coupon.DoesNotExist:
+            grand_total = cart_total_amount
+    else:
+        grand_total = cart_total_amount
+
+    # If empty cart after remove => render return empty-cart.html
+    if not cart_data:
+        request.session.pop("applied_coupon_id", None)  # Remove coupon if empty cart
+        html = render_to_string("app/empty-cart.html", {}, request=request)
+        return JsonResponse({"data": html, "totalcartitems": 0})
+
+    # Render  cart-list.html
+    html = render_to_string("app/cart-list.html", {
+        "cart_data": cart_data,
+        "totalcartitems": len(cart_data),
+        "cart_total_amount": cart_total_amount,
+        "grand_total": grand_total,
+        "discount": discount,
+        "applied_coupon": applied_coupon,
+    }, request=request)
+
+    return JsonResponse({
+        "data": html,
+        "totalcartitems": len(cart_data)
+    })
 
 
 def update_cart(request):

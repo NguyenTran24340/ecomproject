@@ -6,9 +6,6 @@ from drf_yasg import openapi
 
 from app.models import Product
 
-from app.api.serializers.cart_serializers import AddToCartSerializer
-from app.api.serializers.cart_serializers import UpdateCartSerializer
-from app.api.serializers.cart_serializers import RemoveFromCartSerializer
 
 from app.api.serializers.cart_serializers import (
     AddToCartSerializer,
