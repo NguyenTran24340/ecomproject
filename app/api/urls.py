@@ -27,9 +27,12 @@ from app.api.views.order_views import CreateOrderAPIView, OrderHistoryAPIView, O
 from app.api.views.payment_views import PaymentCreateAPIView
 from app.api.views.payment_views import PaymentHistoryAPIView
 
+# Coupon
+from app.api.views.coupon_views import ApplyCouponAPIView,CouponAdminViewSet
 
 router = DefaultRouter()
 router.register(r'products', ProductViewSet, basename='products')
+router.register(r'coupons_admin', CouponAdminViewSet, basename='admin-coupons')
 
 urlpatterns = [
     # Category
@@ -58,5 +61,8 @@ urlpatterns = [
     # Payment
     path('payment/create/', PaymentCreateAPIView.as_view(), name='api-payment-create'),
     path('payment/history/', PaymentHistoryAPIView.as_view(), name='payment-history'),
+
+    # Coupon
+    path("coupon_user/app_coupon/", ApplyCouponAPIView.as_view(), name="apply-coupon-api"),
    
 ]
