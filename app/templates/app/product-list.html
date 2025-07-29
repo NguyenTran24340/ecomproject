@@ -209,19 +209,16 @@
                     >
                         <div class="pages">
                             <ul>
-                                <li class="li">
-                                    <a class="page-link" href="#"
-                                        ><i class="fa fa-angle-left"></i
-                                    ></a>
-                                </li>
-                                <li class="li"><a class="page-link" href="#">1</a></li>
-                                <li class="li"><a class="page-link active" href="#">2</a></li>
-                                <li class="li"><a class="page-link" href="#">3</a></li>
-                                <li class="li">
-                                    <a class="page-link" href="#"
-                                        ><i class="fa fa-angle-right"></i
-                                    ></a>
-                                </li>
+                                {% if page_obj.has_previous %}
+                                <li><a class="page-link" href="?page={{ page_obj.previous_page_number }}"><i class="fa fa-angle-left"></i></a></li>
+                                {% endif %}
+                                {% for num in page_obj.paginator.page_range %}
+                                    {% if page_obj.number == num %}
+                                        <li><a class="page-link active" href="?page={{ num }}">{{ num }}</a></li>
+                                    {% elif num > page_obj.number|add:'-3' and num < page_obj.number|add:'3' %}
+                                        <li><a class="page-link" href="?page={{ num }}">{{ num }}</a></li>
+                                    {% endif %}
+                                {% endfor %}
                             </ul>
                         </div>
                     </div>

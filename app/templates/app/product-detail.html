@@ -80,11 +80,11 @@
                             <div class="pro-details-cart">
                                 <button class="add-cart add-to-cart-btn" data-index="{{ p.id }}" id="add-to-cart-btn">  Add To Cart</button>
                             </div>
-                            <div class="pro-details-cart">
-                                <button class="add-cart buy-button"> Buy It Now</button>
-                            </div>
                             <div class="pro-details-compare-wishlist pro-details-wishlist ">
-                                <a href="wishlist.html"><i class="pe-7s-like"></i></a>
+                                <a  class="action wishlist add-to-wishlist " 
+                                    data-product-item ="{{p.id}}"
+                                    title="Wishlist"
+                                ><i class="pe-7s-like"></i></a>
                             </div>
                         </div>
                         <div class="pro-details-categories-info pro-details-same-style d-flex">

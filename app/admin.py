@@ -7,6 +7,9 @@ class ProductImagesAdmin(admin.TabularInline):
 class ProductAdmin(admin.ModelAdmin):
     inlines = [ProductImagesAdmin]
     list_display = ['user', 'title', 'product_image', 'price', 'category' ,'featured', 'product_status','pid']
+    list_per_page = 8
+    search_fields = ['title', 'description', 'pid', 'sku']
+    list_filter = ['category', 'featured', 'product_status']
 
 class CategoryAdmin(admin.ModelAdmin):
     list_display = ['title', 'category_image']

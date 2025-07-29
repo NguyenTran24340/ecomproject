@@ -8,6 +8,7 @@ from django.contrib import messages
 from django.template.loader import render_to_string
 from django.contrib.auth.decorators import login_required
 from django.core import serializers
+from django.core.paginator import Paginator
 #paypal
 from django.urls import reverse
 from django.conf import settings
@@ -53,18 +54,22 @@ def product_list_view(request):
     products = Product.objects.filter(product_status="public")
     categories = Category.objects.all().annotate(product_count=Count("category"))
 
-     # Lọc theo giá nếu có tham số max_price trong URL
+     # Filter by price 
     max_price = request.GET.get('max_price')
     if max_price:
         try:
             max_price = float(max_price)
-            products = products.filter(price__lte=max_price) # Lọc sản phẩm có giá nhỏ hơn hoặc bằng max_price
+            products = products.filter(price__lte=max_price) #  Filter products 
         except ValueError:
-            # Xử lý lỗi nếu max_price không phải là số hợp lệ
             pass
+    # Pagination
+    paginator = Paginator(products, 8)
+    page_number = request.GET.get("page")  # ?page=1
+    page_obj = paginator.get_page(page_number)
     context = {
-        "products":products,
-        "categories": categories
+        "products":page_obj,
+        "categories": categories,
+        "page_obj": page_obj,
     }
 
     return render(request, 'app/product-list.html', context)
