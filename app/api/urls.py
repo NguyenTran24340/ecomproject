@@ -30,6 +30,15 @@ from app.api.views.payment_views import PaymentHistoryAPIView
 # Coupon
 from app.api.views.coupon_views import ApplyCouponAPIView,CouponAdminViewSet
 
+# Address
+from app.api.views.address_views import (
+    AddressListCreateView,
+    AddressRetrieveUpdateDestroyView,
+    MakeDefaultAddressView,
+)
+# Contact
+from app.api.views.contact_views import ContactFormAPIView, ContactListAdminView
+
 router = DefaultRouter()
 router.register(r'products', ProductViewSet, basename='products')
 router.register(r'coupons_admin', CouponAdminViewSet, basename='admin-coupons')
@@ -64,5 +73,13 @@ urlpatterns = [
 
     # Coupon
     path("coupon_user/app_coupon/", ApplyCouponAPIView.as_view(), name="apply-coupon-api"),
+
+    # Address
+    path('addresses/', AddressListCreateView.as_view(), name='address-list-create'),
+    path('addresses/<int:pk>/', AddressRetrieveUpdateDestroyView.as_view(), name='address-detail'),
+    path('addresses/make_default/', MakeDefaultAddressView.as_view(), name='make-default-address'),
    
+    # Contact
+    path("contact/send/", ContactFormAPIView.as_view(), name="contact-send"),
+    path("contact/list/", ContactListAdminView.as_view(), name="contact-list"),
 ]
