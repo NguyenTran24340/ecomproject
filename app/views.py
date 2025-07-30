@@ -9,6 +9,8 @@ from django.template.loader import render_to_string
 from django.contrib.auth.decorators import login_required
 from django.core import serializers
 from django.core.paginator import Paginator
+import calendar
+from django.db.models.functions import ExtractMonth
 #paypal
 from django.urls import reverse
 from django.conf import settings
@@ -489,9 +491,18 @@ def payment_failed_view(request):
 
 @login_required
 def customer_dashboard(request):
-    orders = CartOrder.objects.filter(user=request.user)
+    orders_list = CartOrder.objects.filter(user=request.user)
     address = Address.objects.filter(user=request.user)
 
+    #chart
+    orders = CartOrder.objects.annotate(month=ExtractMonth("order_date")).values("month").annotate(count=Count("id")).values("month", "count")
+    month = []
+    total_orders = []
+    for i in orders:
+        month.append(calendar.month_name[i["month"]])
+        total_orders.append(i["count"])
+
+    # Address
     if request.method == "POST":
         name = request.POST.get("name") 
         address = request.POST.get("address")
@@ -506,8 +517,11 @@ def customer_dashboard(request):
         return redirect("app:dashboard")
 
     context = {
-        "orders": orders,
-        "address":address,   
+        "orders_list": orders_list,
+        "orders":orders,
+        "address":address,  
+        "month":month,
+        "total_orders":total_orders,
     }
     return render(request, 'app/dashboard.html', context)
 
