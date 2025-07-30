@@ -34,9 +34,12 @@ def about(request):
 def index(request):
     fabric_category = Category.objects.filter(title__iexact="Fabric").first()
     wooden_category = Category.objects.filter(title__iexact="Wooden").first()
+    pottery_category = Category.objects.filter(title__iexact="Pottery").first()
+
 
     fabric_products = Product.objects.filter(product_status="public", featured=True, category=fabric_category) if fabric_category else []
     wooden_products = Product.objects.filter(product_status="public", featured=True, category=wooden_category) if wooden_category else []
+    pottery_products = Product.objects.filter(product_status="public", featured=True, category=pottery_category) if pottery_category else []
 
     categories = Category.objects.all().annotate(product_count=Count("category"))
 
@@ -44,6 +47,7 @@ def index(request):
     context = {
         "fabric_products": fabric_products,
         "wooden_products": wooden_products,
+        "pottery_products": pottery_products,
         "categories": categories
     }
 
@@ -527,8 +531,10 @@ def make_address_default(request):
 @login_required
 def wishlist_view(request):
     wishlist = Wishlist.objects.all()
+    categories = Category.objects.all().annotate(product_count=Count("category"))
     context = {
-        "w": wishlist
+        "w": wishlist,
+        "categories":categories
     }
     return render(request, "app/wishlist.html", context)
 
