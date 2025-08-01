@@ -11,6 +11,7 @@ from django.core import serializers
 from django.core.paginator import Paginator
 import calendar
 from django.db.models.functions import ExtractMonth
+from django.utils import timezone
 #paypal
 from django.urls import reverse
 from django.conf import settings
@@ -150,15 +151,17 @@ def search_view(request):
 # Function Cart
 def add_to_cart(request):
     cart_product = {}
+    product_id = str(request.GET['id']) 
+    product = Product.objects.get(id=product_id)  
 
-    cart_product[str(request.GET['id'])] = {
-        'title': request.GET['title'],
-        'qty': request.GET['qty'],
-        'price': request.GET['price'],
-        'image': request.GET['image'],
-        'pid': request.GET['pid'],
+    cart_product[product_id] = {
+    'title': request.GET['title'],
+    'qty': request.GET['qty'],
+    'price': str(product.price),
+    'image': request.GET['image'],
+    'pid': request.GET['pid'],
+}
 
-    }
 
     if 'cart_data_obj' in request.session:
         if str(request.GET['id']) in request.session['cart_data_obj']:
@@ -372,7 +375,8 @@ def checkout_view(request):
          # Create order
         order = CartOrder.objects.create(
             user=request.user,
-            price=grand_total
+            price=grand_total,
+            order_date=timezone.now()
         )
         request.session["order_id"] = order.id
         
