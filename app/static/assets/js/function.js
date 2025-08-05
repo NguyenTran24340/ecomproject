@@ -1,6 +1,6 @@
 $(document).ready(function () {
   // Add to cart
-  $(".add-to-cart-btn").on("click", function () {
+  $(document).on("click", ".add-to-cart-btn", function () {
     let this_val = $(this);
     let index = this_val.attr("data-index");
     let quantity = $(".product-quantity-" + index).val();
@@ -221,4 +221,54 @@ $(document).ready(function () {
       },
     });
   });
+
+  // === CODE CHATBOT THÊM VÀO ĐÂY ===
+  const botBtn = document.getElementById("chatbot-button");
+  const botBox = document.getElementById("chatbot-box");
+  const input = document.getElementById("chat-input");
+  const send = document.getElementById("send-button");
+  const body = document.getElementById("chat-body");
+  const closeBtn = document.getElementById("chat-close");
+
+  if (botBtn && botBox && input && send && body && closeBtn) {
+    botBox.classList.add("hidden");
+
+    botBtn.onclick = function () {
+      botBox.classList.toggle("hidden");
+    };
+
+    closeBtn.onclick = function () {
+      botBox.classList.add("hidden");
+    };
+
+    send.onclick = async function () {
+      const message = input.value.trim();
+      if (!message) return;
+
+      body.innerHTML += `<div><strong>Bạn:</strong> ${message}</div>`;
+      input.value = "";
+
+      const res = await fetch("/gemini-chat/", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "X-CSRFToken": getCSRFToken(),
+        },
+        body: JSON.stringify({ message }),
+      });
+
+      const data = await res.json();
+      body.innerHTML += `<div><strong>Gemini:</strong> ${data.reply}</div>`;
+      body.scrollTop = body.scrollHeight;
+    };
+
+    function getCSRFToken() {
+      return document.cookie
+        .split("; ")
+        .find((row) => row.startsWith("csrftoken"))
+        ?.split("=")[1];
+    }
+  } else {
+    console.warn("❌ Không tìm thấy phần tử chatbot trong DOM!");
+  }
 });

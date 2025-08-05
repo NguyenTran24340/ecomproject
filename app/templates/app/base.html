@@ -65,8 +65,29 @@
 
     <!-- Main Style -->
     <link rel="stylesheet" href="{% static 'assets/css/style.css' %}" />
-     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link rel="stylesheet" href="{% static 'assets/css/chatbot.css' %}"/>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   </head>
+  <!-- Gemini AI Chatbot Icon + Box -->
+      <!-- ICON -->
+    <div id="chatbot-button">
+      <img src="{% static 'assets/images/logo/chatbot.png' %}" alt="Gemini AI" width="40" height="40" />
+    </div>
+
+    <!-- HỘP CHAT ẨN BAN ĐẦU -->
+    <div id="chatbot-box" class="hidden">
+      <div id="chat-header">
+        🤖 Virtual Assistant
+        <span id="chat-close" style="float:right; cursor:pointer;">✖️</span>
+      </div>
+      <div id="chat-body"></div>
+      <div id="chat-input-area">
+        <input type="text" id="chat-input" placeholder="Enter a message..." />
+        <button id="send-button">📤	</button>
+      </div>
+    </div>
+
+  
 
   <body>
     <!-- Header Area Start -->
@@ -712,10 +733,10 @@
     <!-- Main Js -->
     <script src="{% static 'assets/js/main.js' %}"></script>
     <script src="{% static 'assets/js/price.js' %}"></script>
-    <script src="{% static 'assets/js/price.js' %}"></script>
     <script src="{% static 'assets/js/function.js' %}"></script>
 
-
+    <!-- Chatbot -->
+  
 
   </body>
 </html>

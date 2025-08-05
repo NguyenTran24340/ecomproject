@@ -18,6 +18,13 @@ from django.conf import settings
 from django.views.decorators.csrf import csrf_exempt
 from paypal.standard.forms import PayPalPaymentsForm
 
+#Chatbot
+import google.generativeai as genai
+from django.http import JsonResponse
+from django.views.decorators.csrf import csrf_exempt
+import json
+import os
+
 # Create your views here.
 def blog(request):
     categories = Category.objects.all().annotate(product_count=Count("category"))
@@ -625,3 +632,147 @@ def ajax_contact_form(request):
     }
     
     return JsonResponse({"data":data})
+
+
+# Load Gemini API key
+print(f"DEBUG: GEMINI_API_KEY from settings: '{settings.GEMINI_API_KEY}'")
+
+try:
+    if not settings.GEMINI_API_KEY:
+        raise ValueError("GEMINI_API_KEY is missing in settings.")
+
+    genai.configure(api_key=settings.GEMINI_API_KEY)
+    gemini_model = genai.GenerativeModel("gemini-2.0-flash")
+    print("DEBUG: Gemini model initialized successfully.")
+
+except ValueError as ve:
+    print(f"CONFIG ERROR: {ve}")
+    gemini_model = None
+except Exception as e:
+    print(f"UNEXPECTED ERROR during Gemini configuration: {e}")
+    gemini_model = None
+
+
+@csrf_exempt
+def gemini_chat_view(request):
+    if request.method == "POST":
+        body = json.loads(request.body)
+        user_message = body.get("message", "").lower()
+
+        if gemini_model is None:
+            return JsonResponse({"reply": "Error: Gemini API is not properly configured."})
+
+        try:
+            # 🔒 STEP 0: Block external marketplace questions
+            banned_keywords = ["shopee", "tiki", "amazon", "lazada"]
+            if any(keyword in user_message for keyword in banned_keywords):
+                return JsonResponse({
+                    "reply": "Sorry, I only provide product information from our store. External platforms like Shopee or Tiki are not supported."
+                })
+
+            # 👋 STEP 1: Greeting
+            if user_message in ["hi", "hello", "hey", "xin chào", "chào"]:
+                return JsonResponse({
+                    "reply": "Hello! How can I assist you today? We currently offer handmade products in categories such as fabric, wooden, and pottery. Which one are you interested in?"
+                })
+
+            # 📦 STEP 2: Category selection
+            for category in ["fabric", "wooden", "pottery"]:
+                if category in user_message:
+                    products = Product.objects.filter(category__title__iexact=category, status=True)
+                    if products.exists():
+                        product_names = ", ".join([p.title for p in products])
+                        return JsonResponse({
+                            "reply": f"You selected {category}. We currently offer: {product_names}. Which product would you like to know more about?"
+                        })
+                    return JsonResponse({
+                        "reply": f"Currently, there are no products under the {category} category."
+                    })
+
+            # 🔍 STEP 3: Match user message with product names
+            products = Product.objects.filter(status=True)
+            for product in products:
+                product_name = product.title.lower()
+
+                if product_name in user_message:
+                    # 🎯 Discount inquiry
+                    if "discount" in user_message or "sale" in user_message or "promotion" in user_message:
+                        if product.old_price > product.price:
+                            percent = product.get_precentage()
+                            return JsonResponse({
+                                "reply": f"{product.title} is currently discounted by {percent}%. Old price: ${product.old_price}, now only ${product.price}."
+                            })
+                        else:
+                            return JsonResponse({
+                                "reply": f"{product.title} is not currently on sale."
+                            })
+
+                    # 🎨 Color inquiry
+                    elif "color" in user_message:
+                        return JsonResponse({
+                            "reply": "Color information for this product is not available yet."
+                        })
+
+                    # 📏 Size inquiry
+                    elif "size" in user_message or "dimension" in user_message:
+                        return JsonResponse({
+                            "reply": "Size information for this product is not available yet."
+                        })
+
+                    # 💰 Price inquiry (default)
+                    else:
+                        return JsonResponse({
+                            "reply": f"The price of {product.title} is ${product.price}."
+                        })
+
+            # 🛠️ STEP 4: Policy & support questions
+            if any(word in user_message for word in ["warranty", "return", "refund", "contact", "support", "exchange"]):
+                return JsonResponse({
+                    "reply": "For warranty, return, or support inquiries, please visit our 'Contact' page and send us a message. Our team will assist you shortly."
+                })
+
+            # 🚚 Shipping questions
+            if "shipping fee" in user_message or "delivery charge" in user_message:
+                return JsonResponse({
+                    "reply": "We currently offer **Free Shipping** nationwide."
+                })
+
+            if "delivery" in user_message or "how many days" in user_message or "shipping time" in user_message:
+                return JsonResponse({
+                    "reply": "Delivery time is **3 days** for domestic orders and **7 days** for international ones."
+                })
+
+            # 💳 Payment methods
+            if "payment" in user_message or "cash on delivery" in user_message or "cod" in user_message:
+                return JsonResponse({
+                    "reply": "We do not support Cash on Delivery (COD). Please complete your payment online before shipment."
+                })
+
+            # 🎁 Coupons
+            if "coupon" in user_message or "discount code" in user_message or "promo code" in user_message:
+                return JsonResponse({
+                    "reply": "Yes, we have discount codes available, and they are updated regularly. Stay tuned for new deals!"
+                })
+
+            # 🛒 Bulk order discounts
+            if "bulk order" in user_message or "buy more" in user_message or "wholesale" in user_message:
+                return JsonResponse({
+                    "reply": "Absolutely! We offer additional discounts for bulk orders or high-value purchases."
+                })
+
+            # STEP 5: Gemini fallback for unmatched queries
+            prompt = (
+                "You are a virtual assistant for a handmade product store. "
+                "Always follow these rules:\n"
+                "- Do NOT mention external platforms like Shopee, Tiki, Lazada, or Amazon.\n"
+                "- Only answer based on the available products in our database.\n"
+                "- Do NOT list all products unless explicitly asked.\n"
+                "- If the customer asks vague questions, request clarification.\n\n"
+                f"Customer message: {user_message}"
+            )
+            response = gemini_model.generate_content(prompt)
+            return JsonResponse({"reply": response.text})
+
+        except Exception as e:
+            print(f"Gemini API error: {e}")
+            return JsonResponse({"reply": "An error occurred while calling Gemini: " + str(e)})

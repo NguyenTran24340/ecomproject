@@ -1,7 +1,7 @@
 from django.contrib import admin
 from django.urls import path,include
 from.import views
-from app.views import about, blog, index, product_list_view, category_list_view, category_product_list_view, product_detail_view, search_view, add_to_cart, cart_view, delete_item_from_cart, update_cart, checkout_view, clear_cart, payment_completed_view, payment_failed_view, customer_dashboard, order_detail, make_address_default, wishlist_view , add_to_wishlist, remove_wishlist, contact, ajax_contact_form
+from app.views import about, blog, index, product_list_view, category_list_view, category_product_list_view, product_detail_view, search_view, add_to_cart, cart_view, delete_item_from_cart, update_cart, checkout_view, clear_cart, payment_completed_view, payment_failed_view, customer_dashboard, order_detail, make_address_default, wishlist_view , add_to_wishlist, remove_wishlist, contact, ajax_contact_form, gemini_chat_view
 
 app_name = "app"
 urlpatterns = [
@@ -73,4 +73,6 @@ urlpatterns = [
     path("blog/", blog, name="blog"),
 
     path("about/", about, name="about"),
+
+    path("gemini-chat/", gemini_chat_view, name="gemini-chat"),
 ]
