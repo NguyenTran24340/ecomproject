@@ -74,5 +74,8 @@ urlpatterns = [
 
     path("about/", about, name="about"),
 
+    # chatbot
     path("gemini-chat/", gemini_chat_view, name="gemini-chat"),
+
+   
 ]

@@ -3,6 +3,7 @@ from shortuuid.django_fields import ShortUUIDField
 from django.utils.html import mark_safe
 from userauths.models import User
 from taggit.managers import TaggableManager
+from django.contrib.postgres.fields import ArrayField
 # Create your models here.
 
 STATUS_CHOICE = (
@@ -78,6 +79,8 @@ class Product(models.Model):
 
     date = models.DateTimeField(auto_now_add=True)
     updated = models.DateTimeField(null=True, blank=True)
+
+    
 
     class Meta:
         verbose_name_plural = "Products"

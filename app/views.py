@@ -25,6 +25,8 @@ from django.views.decorators.csrf import csrf_exempt
 import json
 import os
 
+
+
 # Create your views here.
 def blog(request):
     categories = Category.objects.all().annotate(product_count=Count("category"))
@@ -604,6 +606,7 @@ def remove_wishlist(request):
     t = render_to_string('app/wishlist-list.html', context)
     return JsonResponse({'data': t, 'w': wishlist_json})
 
+# Function contacr
 def contact(request):
     categories = Category.objects.all().annotate(product_count=Count("category"))
     context = {
@@ -776,3 +779,5 @@ def gemini_chat_view(request):
         except Exception as e:
             print(f"Gemini API error: {e}")
             return JsonResponse({"reply": "An error occurred while calling Gemini: " + str(e)})
+        
+
